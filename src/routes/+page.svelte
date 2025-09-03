@@ -1,13 +1,13 @@
 <header class="bg-white">
   <nav aria-label="Global" class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
     <div class="flex lg:flex-1">
-      <a href="#" class="-m-1.5 p-1.5">
+      <a href="/" class="-m-1.5 p-1.5">
         <span class="sr-only">Absendulu</span>
         <img src="/rectangle.png" alt="" class="h-10 w-auto" />
       </a>
     </div>
     <div class="flex lg:hidden">
-      <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
+      <button type="button" command="show-modal" commandfor="mobile-menu" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 cursor-pointer">
         <span class="sr-only">Open main menu</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
           <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -30,11 +30,11 @@
       <div tabindex="0" class="fixed inset-0 focus:outline-none">
         <el-dialog-panel class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div class="flex items-center justify-between">
-            <a href="#" class="-m-1.5 p-1.5">
+            <a href="/" class="-m-1.5 p-1.5">
               <span class="sr-only">Absendulu</span>
               <img src="/rectangle.png" alt="Absendulu" class="h-10 w-auto" />
             </a>
-            <button type="button" command="close" commandfor="mobile-menu" class="-m-2.5 rounded-md p-2.5 text-gray-700">
+            <button type="button" command="close" commandfor="mobile-menu" class="-m-2.5 rounded-md p-2.5 text-gray-700 cursor-pointer">
               <span class="sr-only">Close menu</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
                 <path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
@@ -195,7 +195,7 @@
           Aproval Izin & Cuti
         </li>
       </ul>
-      <a href="#" aria-describedby="tier-hobby" class="mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold text-indigo-600 inset-ring inset-ring-indigo-200 hover:inset-ring-indigo-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:mt-10">Mulai Sekarang</a>
+      <a href="/masuk" aria-describedby="tier-hobby" class="mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold text-indigo-600 inset-ring inset-ring-indigo-200 hover:inset-ring-indigo-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:mt-10">Mulai Sekarang</a>
     </div>
 
     <div class="relative rounded-3xl bg-gray-900 p-8 shadow-2xl ring-1 ring-gray-900/10 sm:p-10">
@@ -249,7 +249,7 @@
           Custom Development
         </li>
       </ul>
-      <a href="#" aria-describedby="tier-enterprise" class="mt-8 block rounded-md bg-indigo-500 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:mt-10">Langganan Sekarang</a>
+      <a href="/langganan" aria-describedby="tier-enterprise" class="mt-8 block rounded-md bg-indigo-500 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:mt-10">Langganan Sekarang</a>
     </div>
   </div>
 </div>
@@ -327,7 +327,7 @@
     <!-- Logo & Brand -->
     <div class="md:col-span-1">
       <div class="flex items-center space-x-3 mb-4">
-        <img src="/logo.png" alt="Logo" class="w-10 h-10 rounded-lg">
+        <img src="/logo-white.png" alt="Logo" class="w-10 h-10 rounded-lg">
         <span class="text-white text-xl font-bold">Absendulu</span>
       </div>
       <p class="text-gray-400 text-sm">
@@ -340,8 +340,8 @@
       <h4 class="text-white font-semibold mb-3">Navigasi</h4>
       <ul class="space-y-2">
         <li><a href="/" class="hover:text-white">Beranda</a></li>
-        <li><a href="#features" class="hover:text-white">Mulai Sekarang</a></li>
-        <li><a href="/login" class="hover:text-white">Masuk</a></li>
+        <li><a href="#fitur" class="hover:text-white">Mulai Sekarang</a></li>
+        <li><a href="/masuk" class="hover:text-white">Masuk</a></li>
       </ul>
     </div>
 
@@ -349,8 +349,8 @@
     <div>
       <h4 class="text-white font-semibold mb-3">Produk</h4>
       <ul class="space-y-2">
-        <li><a href="#features" class="hover:text-white">Fitur</a></li>
-        <li><a href="#pricing" class="hover:text-white">Harga</a></li>
+        <li><a href="#fitur" class="hover:text-white">Fitur</a></li>
+        <li><a href="#harga" class="hover:text-white">Harga</a></li>
       </ul>
     </div>
 
@@ -358,8 +358,8 @@
     <div>
       <h4 class="text-white font-semibold mb-3">Legal</h4>
       <ul class="space-y-2">
-        <li><a href="/privacy-policy" class="hover:text-white">Kebijakan Privasi</a></li>
-        <li><a href="/terms" class="hover:text-white">Syarat & Ketentuan</a></li>
+        <li><a href="/kebijakan-prrivasi" class="hover:text-white">Kebijakan Privasi</a></li>
+        <li><a href="/syarat-ketentuan" class="hover:text-white">Syarat & Ketentuan</a></li>
       </ul>
     </div>
 
@@ -378,6 +378,6 @@
 
   <!-- Bottom -->
   <div class="border-t border-gray-700 mt-10 pt-6 text-center text-gray-500 text-sm">
-    &copy; 2025 Absensi Geofence SaaS. All rights reserved.
+    &copy; 2025 Absendulu. All rights reserved.
   </div>
 </footer>
