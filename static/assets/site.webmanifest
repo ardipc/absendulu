@@ -1,0 +1,24 @@
+{
+  "name": "Absendulu",
+  "short_name": "Absen",
+  "icons": [
+    {
+      "src": "/assets/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets//android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "description": "Sistem absensi pakai lokasi dan PWA. Bisa absen dari smartphone tanpa ribet, bahkan saat offline. Gratis untuk 1 perusahaan & 1 lokasi.",
+  "lang": "id",
+  "orientation": "portrait"
+}
