@@ -358,7 +358,7 @@
     <div>
       <h4 class="text-white font-semibold mb-3">Legal</h4>
       <ul class="space-y-2">
-        <li><a href="/kebijakan-prrivasi" class="hover:text-white">Kebijakan Privasi</a></li>
+        <li><a href="/kebijakan-privasi" class="hover:text-white">Kebijakan Privasi</a></li>
         <li><a href="/syarat-ketentuan" class="hover:text-white">Syarat & Ketentuan</a></li>
       </ul>
     </div>
