@@ -1,6 +1,59 @@
-<script>
+<script lang="ts">
 	import * as NavigationMenu from "$lib/components/ui/navigation-menu";
+
+  import { onMount } from "svelte";
+
+  let deferredPrompt: any;
+  let showInstall = $state(false);
+
+  onMount(() => {
+    window.addEventListener("beforeinstallprompt", (e) => {
+      // block default mini-infobar
+      e.preventDefault();
+      deferredPrompt = e;
+      showInstall = true;
+    });
+  });
+
+  async function installApp() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt(); // munculkan popup bawaan browser
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        console.log("User accepted install");
+      } else {
+        console.log("User dismissed install");
+      }
+      deferredPrompt = null;
+      showInstall = false;
+    }
+  }
 </script>
+
+{#if showInstall}
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
+      <h2 class="text-lg font-bold mb-2">Pasang Absendulu</h2>
+      <p class="text-gray-600 mb-4 text-sm">
+        Tambahkan aplikasi ke layar utama agar lebih cepat diakses.
+      </p>
+      <div class="flex justify-center gap-4">
+        <button
+          onclick={() => showInstall = false}
+          class="px-4 py-2 bg-gray-200 rounded-lg text-gray-700 hover:bg-gray-300"
+        >
+          Nanti Saja
+        </button>
+        <button
+          onclick={installApp}
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Pasang
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <header class="bg-white">
   <nav aria-label="Global" class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">

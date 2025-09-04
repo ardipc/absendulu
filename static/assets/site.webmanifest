@@ -1,6 +1,21 @@
 {
   "name": "Absendulu",
   "short_name": "Absen",
+  "display_override": ["window-controls-overlay", "fullscreen"],
+  "screenshots": [
+    {
+      "src": "/mobile.png",
+      "sizes": "360x640",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
   "icons": [
     {
       "src": "/assets/android-chrome-192x192.png",
