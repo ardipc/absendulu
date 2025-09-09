@@ -7,7 +7,7 @@
 
 <NavTop />
 
-<section class="pt-16 pb-16 sm:pb-20 px-3">
+<section class="pt-16 pb-18 sm:pb-20 px-3">
 	{@render children?.()}
 </section>
 

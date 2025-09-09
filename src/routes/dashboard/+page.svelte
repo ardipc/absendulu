@@ -12,6 +12,10 @@
     { time: "08:05", status: "Clock In", location: "Kantor Pusat" },
     { time: "12:00", status: "Break Out", location: "Kantor Pusat" },
     { time: "13:00", status: "Break In", location: "Kantor Pusat" },
+    { time: "17:05", status: "Clock Out", location: "Kantor Pusat" },
+    { time: "08:05", status: "Clock In", location: "Kantor Pusat" },
+    { time: "12:00", status: "Break Out", location: "Kantor Pusat" },
+    { time: "13:00", status: "Break In", location: "Kantor Pusat" },
     { time: "17:05", status: "Clock Out", location: "Kantor Pusat" }
   ];
 </script>

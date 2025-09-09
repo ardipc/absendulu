@@ -23,7 +23,7 @@
   }
 </script>
 
-<nav class="fixed top-0 left-0 z-50 w-full flex items-center justify-between px-4 py-3 border-b shadow">
+<nav class="fixed top-0 left-0 z-50 w-full flex items-center bg-white justify-between px-4 py-3 border-b shadow">
   <!-- Left: Clock -->
   <div class="text-sm font-mono">
     {$time}
