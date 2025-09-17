@@ -54,7 +54,7 @@
     loading = true
 
     const { data: response } = await supabase.from("companies").select("*").eq("owner", data.session?.user.email);
-    if (response?.length === 0) company = [];
+    if (response?.length === 0) company = null;
     else if (response) company = response[0];
     else company = null;
 
@@ -107,7 +107,7 @@
       </button>
     </div>
 
-    <div>
+    <div class="my-3">
       <Button onclick={addEmployee}
         class="w-full py-2 rounded-lg">
         Tambah Lokasi
