@@ -2,6 +2,7 @@
   import { supabase } from '$lib/supabase';
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 
   let user: any = $state(null);
 
@@ -47,12 +48,12 @@
       </div>
 
       <div class="mt-6 space-y-3">
-        <button
+        <!-- <button
           class="w-full bg-blue-500 text-white py-3 rounded-xl shadow-md hover:bg-blue-600 transition"
           onclick={() => goto('/profile/edit')}
         >
           Edit Profile
-        </button>
+        </button> -->
 
         <button
           class="w-full py-3 rounded-xl cursor-pointer text-red-500"
@@ -62,7 +63,12 @@
         </button>
       </div>
     {:else}
-      <p class="text-center text-gray-500">Loading...</p>
+      <div class="grid grid-cols-1 gap-2">
+        <Skeleton class="h-[24px] w-full rounded" />
+        <Skeleton class="h-[60px] w-full rounded" />
+        <Skeleton class="h-[20px] w-full rounded" />
+        <Skeleton class="h-[40px] w-full rounded" />
+      </div>
     {/if}
   </div>
 </div>

@@ -1,11 +1,18 @@
 <script lang="ts">
 	import Button from "$lib/components/ui/button/button.svelte";
+  import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
+
+	import { supabase } from "$lib/supabase.js";
+	import { Edit, Edit2, Edit3 } from "@lucide/svelte";
+	import { onMount } from "svelte";
+
+  let { data } = $props();
 
   // Simulasi user plan
   let isFreePlan = true;
 
   // Simulasi company
-  let company: { name: string; address: string } | null = $state(null);
+  let company: { owner: string | undefined; name: string; description: string } | any[] | null = $state(null);
 
   // Simulasi daftar karyawan
   let employees: { name: string; position: string }[] = $state([]);
@@ -16,12 +23,14 @@
   let empName = $state("");
   let empPosition = $state("");
 
-  function createCompany() {
+  async function createCompany() {
     if (!companyName || !companyAddress) {
       alert("Nama & alamat perusahaan harus diisi");
       return;
     }
-    company = { name: companyName, address: companyAddress };
+    company = { owner: data.session?.user.email, name: companyName, description: companyAddress };
+    const create = await supabase.from("companies").insert([company]).select()
+    console.log(create)
     alert(`Company ${company.name} berhasil dibuat!`);
   }
 
@@ -34,10 +43,36 @@
     empName = "";
     empPosition = "";
   }
+
+  let loading = $state(true)
+
+  onMount(() => {
+    checkingCompany()
+  });
+
+  async function checkingCompany() {
+    loading = true
+
+    const { data: response } = await supabase.from("companies").select("*").eq("owner", data.session?.user.email);
+    if (response?.length === 0) company = [];
+    else if (response) company = response[0];
+    else company = null;
+
+    loading = false
+  }
 </script>
 
 <main class="py-3 bg-gray-50 min-h-screen">
-  {#if !company}
+  {#if loading}
+    <div class="grid grid-cols-1 gap-2">
+      <Skeleton class="h-[24px] w-full rounded" />
+      <Skeleton class="h-[60px] w-full rounded" />
+      <Skeleton class="h-[20px] w-full rounded" />
+      <Skeleton class="h-[40px] w-full rounded" />
+    </div>
+  {/if}
+
+  {#if !company && !loading}
     <!-- FORM CREATE COMPANY -->
     <h1 class="text-xl font-bold mb-4">Buat Perusahaan Anda</h1>
     <p class="text-sm text-gray-500 mb-6">
@@ -49,19 +84,35 @@
     <input type="text" value={companyName} onchange={e => companyName = e.target.value}
       class="w-full p-4 border rounded-lg mb-4 focus:ring focus:ring-blue-200" />
 
-    <label class="block mb-2 text-sm font-medium">Alamat</label>
+    <label class="block mb-2 text-sm font-medium">Deskripsi</label>
     <textarea value={companyAddress} rows="3" onchange={e => companyAddress = e.target.value}
       class="w-full p-4 border rounded-lg mb-6 focus:ring focus:ring-blue-200"></textarea>
 
     <button onclick={createCompany}
       class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600">
-      Buat Company
+      Buat Perusahaan
     </button>
 
-  {:else}
+  {/if}
+
+  {#if company && !loading}
     <!-- COMPANY DASHBOARD -->
-    <h1 class="text-xl font-bold mb-2">{company.name}</h1>
-    <p class="text-gray-600 mb-6">{company.address}</p>
+    <div class="flex justify-between mb-3">
+      <div>
+        <h1 class="text-xl font-bold">{company.name}</h1>
+        <p class="text-gray-600">{company.description}</p>
+      </div>
+      <button class="rounded-full">
+        <Edit class="w-4 h-4 cursor-pointer" />
+      </button>
+    </div>
+
+    <div>
+      <Button onclick={addEmployee}
+        class="w-full py-2 rounded-lg">
+        Tambah Lokasi
+      </Button>
+    </div>
 
     <!-- FORM TAMBAH KARYAWAN -->
     <div class="bg-white p-4 shadow rounded-lg mb-6">

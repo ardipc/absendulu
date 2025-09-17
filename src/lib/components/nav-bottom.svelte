@@ -2,7 +2,7 @@
   import { House, ListChecks, PlusSquare, Users2Icon, Contact2 } from "@lucide/svelte";
 </script>
 
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg sm:hidden">
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
   <ul class="flex justify-around items-center py-3 text-gray-600">
     <a href="/dashboard">
       <li class="flex flex-col items-center">
