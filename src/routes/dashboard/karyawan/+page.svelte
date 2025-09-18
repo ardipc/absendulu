@@ -3,7 +3,7 @@
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
 
 	import { supabase } from "$lib/supabase.js";
-	import { Edit, Edit2, Edit3 } from "@lucide/svelte";
+	import { Edit } from "@lucide/svelte";
 	import { onMount } from "svelte";
 
   let { data } = $props();
@@ -22,6 +22,23 @@
   let companyAddress = $state("");
   let empName = $state("");
   let empPosition = $state("");
+
+  let siteName = $state("");
+  let siteAddress = $state("");
+  let siteRadius = $state(50);
+  let siteLat = $state(0);
+  let siteLng = $state(0);
+
+  async function createSite() {
+    if (!siteName || !siteAddress || !siteRadius || !siteLat || !siteLng) {
+      alert("Semua form harus diisi");
+      return;
+    }
+    let body = { name: siteName, address: siteAddress, radius: siteRadius, latitude: siteLat, longitude: siteLng }
+    const { error } = await supabase.from("sites").insert([body]).select()
+    if (error) console.log(error)
+    alert("Lokasi baru berhasil dibuat!");
+  }
 
   async function createCompany() {
     if (!companyName || !companyAddress) {
@@ -53,7 +70,7 @@
   async function checkingCompany() {
     loading = true
 
-    const { data: response } = await supabase.from("companies").select("*").eq("owner", data.session?.user.email);
+    const { data: response } = await supabase.from("companies").select("*,sites(*)").eq("owner", data.session?.user.email);
     if (response?.length === 0) company = null;
     else if (response) company = response[0];
     else company = null;
@@ -108,6 +125,13 @@
     </div>
 
     <div class="my-3">
+      <label class="block mb-2 text-sm font-medium">Nama Perusahaan</label>
+      <input type="text" value={companyName} onchange={e => companyName = e.target.value}
+      class="w-full p-4 border rounded-lg mb-4 focus:ring focus:ring-blue-200" />
+
+      <label class="block mb-2 text-sm font-medium">Deskripsi</label>
+      <textarea value={companyAddress} rows="3" onchange={e => companyAddress = e.target.value}
+        class="w-full p-4 border rounded-lg mb-6 focus:ring focus:ring-blue-200"></textarea>
       <Button onclick={addEmployee}
         class="w-full py-2 rounded-lg">
         Tambah Lokasi
