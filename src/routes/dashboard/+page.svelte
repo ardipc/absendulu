@@ -20,10 +20,10 @@
   ];
 </script>
 
-{#if data.session}
-  <div class="pt-2">
+{#if data}
+  <div class="m-6">
     <!-- Heading -->
-    <h1 class="text-xl font-bold mb-2">Halo {data.session.user.email}</h1>
+    <h1 class="text-xl font-bold mb-2">Halo {data.user.email}</h1>
     <p class="text-sm text-gray-500 mb-6">Hari ini: {today}</p>
 
     <!-- Summary Cards -->
