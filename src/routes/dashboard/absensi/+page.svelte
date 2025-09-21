@@ -1,123 +1,159 @@
 <script lang="ts">
+	import { uploadBase64 } from "$lib/upload";
   import { onMount, onDestroy } from "svelte";
 
   let videoElement: HTMLVideoElement | null = null;
   let canvasElement: HTMLCanvasElement | null = null;
 
   let stream: MediaStream | null = null;
+  let capturedImage: string | null = null;
 
-  let payload = $state<any | null>(null);
+  let latitude: number | null = null;
+  let longitude: number | null = null;
 
-  onMount(async () => {
+  async function startCamera() {
     try {
-      // Aktifkan kamera
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" } // ganti ke "environment" untuk kamera belakang
+        video: { facingMode: "user" }
       });
       if (videoElement) {
         videoElement.srcObject = stream;
+        await videoElement.play(); // pastikan jalan
       }
     } catch (err) {
       console.error("Camera access denied:", err);
     }
-  });
+  }
 
-  onDestroy(() => {
-    // Matikan kamera saat pindah halaman
+  function stopCamera() {
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
       stream = null;
     }
-    console.log("Camera stopped.");
+  }
+
+  onMount(() => {
+    startCamera();
   });
 
-  function clockIn() {
-    console.log("click")
-    const context = canvasElement?.getContext("2d");
+  onDestroy(() => {
+    stopCamera();
+  });
 
+  function capture() {
     if (canvasElement && videoElement) {
-      console.log("canvasElement && videoElement")
-
+      const context = canvasElement.getContext("2d");
       canvasElement.width = videoElement.videoWidth;
       canvasElement.height = videoElement.videoHeight;
+      if (context) {
+        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        capturedImage = canvasElement.toDataURL("image/png");
+      }
     }
 
-    if (context && videoElement && canvasElement) {
-      console.log("context && canvasElement && videoElement")
-
-      // ambil snapshot dari kamera
-      context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-      const imageData = canvasElement.toDataURL("image/png");
-
-      console.log("image", imageData)
-
-      // ambil lokasi sekali (tanpa watch)
-      if ("geolocation" in navigator) {
-        console.log("geolocation in navigator")
-        payload = {
-          image: imageData
+    // Ambil lokasi sekali
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+          console.log("Latitude:", latitude, "Longitude:", longitude);
+        },
+        (err) => {
+          console.error("Error getting location:", err);
+          latitude = -7.250445; // Contoh fallback
+          longitude = 112.768845;
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
-
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const latitude = pos.coords.latitude;
-            const longitude = pos.coords.longitude;
-
-            console.log("Captured Image:", imageData);
-            console.log("Latitude:", latitude, "Longitude:", longitude);
-
-            payload = {
-              image: imageData,
-              latitude,
-              longitude
-            }
-
-          },
-          (err) => {
-            console.error("Error getting location:", err);
-            alert("Clock In berhasil, tapi lokasi gagal diambil.");
-          }
-        );
-      } else {
-        alert("Clock In berhasil, tapi geolocation tidak didukung.");
-      }
-    } else {
-      alert("Gagal mengambil gambar. Pastikan kamera aktif.");
+      );
     }
   }
+
+  function retry() {
+    capturedImage = null;
+    latitude = null;
+    longitude = null;
+    startCamera(); // hidupkan kamera lagi
+  }
+
+  async function submitAbsensi() {
+    if (!capturedImage) return;
+
+    const payload = {
+      image: capturedImage,
+      latitude,
+      longitude,
+      // tanggal dalam format yyyy-mm-dd
+      tanggal: new Date().toISOString().split("T")[0],
+      timestamp: new Date().toISOString()
+    };
+
+    console.log("Payload absensi:", payload);
+
+    // Upload gambar ke Supabase
+    try {
+      const filePath = `absensi/${payload.tanggal}_${Date.now()}.png`;
+      const upload = await uploadBase64(capturedImage, filePath);
+      console.log("Upload result:", upload);
+    } catch (err) {
+      console.error("Error submitting absensi:", err);
+      alert("Terjadi kesalahan saat mengirim absensi.");
+    }
+
+    // try {
+    //   const response = await fetch("/api/absensi", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json"
+    //     },
+    //     body: JSON.stringify(payload)
+    //   });
+
+    //   if (response.ok) {
+    //     alert("Absensi berhasil dikirim!");
+    //     retry(); // reset untuk absensi berikutnya
+    //   } else {
+    //     alert("Gagal mengirim absensi.");
+    //   }
+    // } catch (err) {
+    //   console.error("Error submitting absensi:", err);
+    //   alert("Terjadi kesalahan saat mengirim absensi.");
+    // }
+  } 
 </script>
 
-<div class="pt-4 pb-4 bg-gray-50 flex flex-col items-center">
-  <!-- Kamera -->
-  <div class="w-full max-w-md p-4 mb-4">
-    <video
-      bind:this={videoElement}
-      autoplay
-      playsinline
-      class="rounded-xl shadow-md w-full"
-    >
-      <track kind="captions" />
-    </video>
-    <!-- Canvas tersembunyi -->
-    <canvas bind:this={canvasElement} class="hidden"></canvas>
-  </div>
+<div class="flex flex-col items-center space-y-4">
+  <div class="m-3">
+    {#if capturedImage}
+      <!-- Preview hasil foto -->
+      <img src={capturedImage} alt="Captured" class="rounded-xl shadow-md w-full max-w-md" />
+      <div>
+        {#if latitude !== null && longitude !== null}
+          <p class="mt-2 text-green-600">Lokasi berhasil didapatkan:</p>
+          <p>Latitude: {latitude}</p>
+          <p>Longitude: {longitude}</p>
+        {:else}
+          <p class="mt-2 text-center text-red-600">Gagal mendapatkan lokasi.</p>
+        {/if}
+      </div>
+      <button onclick={submitAbsensi} class="px-4 py-2 my-3 bg-green-500 w-full text-white rounded-lg">
+        Kirim Absensi
+      </button>
+      <button onclick={retry} class="px-4 py-2 w-full rounded-lg">
+        Ulangi
+      </button>
+    {:else}
+      <!-- Kamera aktif -->
+      <video bind:this={videoElement} autoplay playsinline class="rounded-xl shadow-md w-full"></video>
+      <canvas bind:this={canvasElement} class="hidden"></canvas>
 
-  <!-- Tombol Clock In -->
-  <div class="flex-1 flex flex-col items-center justify-center space-y-4">
-    <button
-      onclick={clockIn}
-      class="w-40 h-40 bg-blue-500 rounded-full text-white text-xl font-bold shadow-lg hover:bg-blue-600 transition"
-    >
-      Clock In
-    </button>
-    <p class="text-gray-500 text-sm">Silakan tekan tombol untuk Clock In.</p>
+      <button onclick={capture} class="px-4 py-2 bg-blue-500 w-full my-3 text-white rounded-lg">
+        Clock In
+      </button>
+    {/if}
   </div>
-
-  {#if payload}
-    <div class="w-full p-4">
-      <img src={payload.image} alt="Caputer" class="rounded-xl shadow-md w-full" />
-      <p>Latitude : {payload.latitude}</p>
-      <p>Longitude : {payload.longitude}</p>
-    </div>
-  {/if}
 </div>
