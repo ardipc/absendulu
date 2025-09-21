@@ -26,3 +26,25 @@ export async function uploadBase64(base64String: string, filePath: string) {
   if (error) throw error
   return data
 }
+
+
+export async function uploadFormData(file: File | null) {
+  if (!file) {
+    throw new Error("File tidak ditemukan di FormData");
+  }
+
+  const fileName = `${Date.now()}-${file.name}`;
+
+  const { data, error } = await supabase.storage
+    .from('absendulu')
+    .upload('requests/' + fileName, file, {
+      contentType: file.type,
+      upsert: true,
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
