@@ -23,7 +23,7 @@
 
 </script>
 
-<div class="py-3 bg-gray-50">
+<div class="p-6 bg-gray-50">
   <div class="max-w-md mx-auto">
     {#if user}
       <div class="bg-white rounded-xl shadow-md flex flex-col p-4 gap-4">

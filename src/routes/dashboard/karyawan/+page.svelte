@@ -8,6 +8,8 @@
 
   let { data } = $props();
 
+  console.log("karyawan:", data)
+
   // Simulasi user plan
   let isFreePlan = true;
 
@@ -45,7 +47,7 @@
       alert("Nama & alamat perusahaan harus diisi");
       return;
     }
-    company = { owner: data.session?.user.email, name: companyName, description: companyAddress };
+    company = { owner: data.user.email, name: companyName, description: companyAddress };
     const create = await supabase.from("companies").insert([company]).select()
     console.log(create)
     alert(`Company ${company.name} berhasil dibuat!`);
@@ -70,7 +72,7 @@
   async function checkingCompany() {
     loading = true
 
-    const { data: response } = await supabase.from("companies").select("*,sites(*)").eq("owner", data.session?.user.email);
+    const { data: response } = await supabase.from("companies").select("*,sites(*),employees(*)").eq("owner", data.user.email);
     if (response?.length === 0) company = null;
     else if (response) company = response[0];
     else company = null;
@@ -79,7 +81,7 @@
   }
 </script>
 
-<main class="py-3 bg-gray-50 min-h-screen">
+<main class="p-6 bg-gray-50 min-h-screen">
   {#if loading}
     <div class="grid grid-cols-1 gap-2">
       <Skeleton class="h-[24px] w-full rounded" />
@@ -101,7 +103,7 @@
     <input type="text" value={companyName} onchange={e => companyName = e.target.value}
       class="w-full p-4 border rounded-lg mb-4 focus:ring focus:ring-blue-200" />
 
-    <label class="block mb-2 text-sm font-medium">Deskripsi</label>
+    <label class="block mb-2 text-sm font-medium">Alamat Perusahaan</label>
     <textarea value={companyAddress} rows="3" onchange={e => companyAddress = e.target.value}
       class="w-full p-4 border rounded-lg mb-6 focus:ring focus:ring-blue-200"></textarea>
 
@@ -124,54 +126,53 @@
       </button>
     </div>
 
-    <div class="my-3">
-      <label class="block mb-2 text-sm font-medium">Nama Perusahaan</label>
-      <input type="text" value={companyName} onchange={e => companyName = e.target.value}
-      class="w-full p-4 border rounded-lg mb-4 focus:ring focus:ring-blue-200" />
-
-      <label class="block mb-2 text-sm font-medium">Deskripsi</label>
-      <textarea value={companyAddress} rows="3" onchange={e => companyAddress = e.target.value}
-        class="w-full p-4 border rounded-lg mb-6 focus:ring focus:ring-blue-200"></textarea>
+    <div class="my-3 border rounded-lg p-3 bg-white">
+      <h2 class="font-bold text-xl mb-3">Lokasi Kerja</h2>
+      {#if company.sites.length === 0}
+        <p class="text-gray-500 mb-3">Belum ada lokasi kerja. Tambahkan lokasi kerja untuk mengaktifkan fitur absensi berbasis lokasi.</p>
+      {:else}
+        <ul class="mb-6">
+          {#each company.sites as site}
+            <li class="mb-2 border p-2 rounded-lg flex gap-3 items-center">
+              <img src="https://ui-avatars.com/api/?name={site.name}&background=random&size=64" alt="Avatar" class="w-10 h-10 rounded-full" />
+              <div>
+                <p class="font-medium">{site.name}</p>
+                <p class="text-xs text-gray-500">{site.address}</p>
+                <p class="text-sm">Radius: {site.radius}m</p>
+              </div>
+            </li>
+          {/each}
+        </ul>
+      {/if}
       <Button onclick={addEmployee}
         class="w-full py-2 rounded-lg">
         Tambah Lokasi
       </Button>
     </div>
 
-    <!-- FORM TAMBAH KARYAWAN -->
-    <div class="bg-white p-4 shadow rounded-lg mb-6">
-      <h2 class="text-lg font-semibold mb-3">Tambah Karyawan</h2>
-      {#if isFreePlan && employees.length >= 5}
-        <p class="text-red-500 text-sm mb-3">
-          Batas maksimal karyawan untuk paket gratis adalah 5. Upgrade ke Pro untuk menambah karyawan.
-        </p>
+    <div class="my-3 border rounded-lg p-3 bg-white">
+      <h2 class="font-bold text-xl mb-3">Daftar Karyawan</h2>
+      {#if company.employees.length === 0}
+        <p class="text-gray-500 mb-3">Belum ada karyawan. Tambahkan karyawan untuk mengelola absensi.</p>
       {:else}
-        <input type="text" value={empName} placeholder="Nama" onchange={e => empName = e.target.value}
-          class="w-full p-2 border rounded-lg mb-3" />
-        <input type="text" value={empPosition} placeholder="Jabatan" onchange={e => empPosition = e.target.value}
-          class="w-full p-2 border rounded-lg mb-3" />
-        <Button onclick={addEmployee}
-          class="w-full py-2 rounded-lg">
-          Tambah Karyawan
-        </Button>
+        <ul class="mb-6">
+          {#each company.employees as emp}
+            <li class="mb-2 border p-2 rounded-lg flex gap-3 items-center">
+              <img src="https://ui-avatars.com/api/?name={emp.name}&background=random&size=64" alt="Avatar" class="w-10 h-10 rounded-full" />
+              <div>
+                <p class="font-medium">{emp.name}</p>
+                <p class="text-xs">{emp.phone}</p>
+                <p class="text-xs text-gray-500 italic">{emp.role}</p>
+              </div>
+            </li>
+          {/each}
+        </ul>
       {/if}
+      <Button onclick={addEmployee}
+        class="w-full py-2 rounded-lg">
+        Tambah Karyawan
+      </Button>
     </div>
 
-    <!-- LIST KARYAWAN -->
-    <h2 class="text-lg font-semibold mb-3">Daftar Karyawan</h2>
-    {#if employees.length === 0}
-      <p class="text-gray-500">Belum ada karyawan.</p>
-    {:else}
-      <ul class="space-y-2">
-        {#each employees as emp}
-          <li class="bg-white p-4 shadow rounded-lg flex justify-between">
-            <div>
-              <p class="font-medium">{emp.name}</p>
-              <p class="text-sm text-gray-500">{emp.position}</p>
-            </div>
-          </li>
-        {/each}
-      </ul>
-    {/if}
   {/if}
 </main>
