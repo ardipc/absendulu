@@ -66,7 +66,7 @@
   }
 </script>
 
-<main class="bg-gray-50 p-6">
+<main class="bg-gray-50 p-2 md:p-6">
   <Tabs.Root value="account" class="w-full">
     <Tabs.List class="w-full mb-6">
       <Tabs.Trigger value="account">Form Request</Tabs.Trigger>

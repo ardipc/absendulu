@@ -1,6 +1,8 @@
 <script lang="ts">
   let { data } = $props();
 
+  console.log('dashboard', data);
+
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long",
     year: "numeric",
@@ -21,9 +23,9 @@
 </script>
 
 {#if data}
-  <div class="m-6">
+  <div class="m-2 md:m-6">
     <!-- Heading -->
-    <h1 class="text-xl font-bold mb-2">Halo {data.user.email}</h1>
+    <h1 class="text-xl font-bold mb-2">Halo {data?.user?.email}</h1>
     <p class="text-sm text-gray-500 mb-6">Hari ini: {today}</p>
 
     <!-- Summary Cards -->

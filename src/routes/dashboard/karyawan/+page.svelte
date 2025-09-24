@@ -81,7 +81,7 @@
   }
 </script>
 
-<main class="p-6 bg-gray-50 min-h-screen">
+<main class="p-2 md:p-6 bg-gray-50 min-h-screen">
   {#if loading}
     <div class="grid grid-cols-1 gap-2">
       <Skeleton class="h-[24px] w-full rounded" />

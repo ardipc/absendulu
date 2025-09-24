@@ -6,6 +6,9 @@
   let deferredPrompt: any;
   let showInstall = $state(false);
 
+  let { data } = $props();
+  console.log("index:", data)
+
   onMount(() => {
     window.addEventListener("beforeinstallprompt", (e) => {
       // block default mini-infobar
@@ -13,6 +16,11 @@
       deferredPrompt = e;
       showInstall = true;
     });
+
+    if (data?.user) {
+      // redirect to dashboard if logged in
+      window.location.href = "/dashboard";
+    }
   });
 
   async function installApp() {
