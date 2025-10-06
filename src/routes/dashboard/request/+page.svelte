@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { supabase } from "$lib/supabase";
+	import { onMount } from 'svelte';
 	import { uploadFormData } from "$lib/upload";
   import * as Tabs from '$lib/components/ui/tabs/index.js';
 
   let { data } = $props();
+  console.log({data})
 
   let isSubmit = $state(false);
+  let myReqs = $state<any[]>([]);
 
   let type = $state("");
   let date = $state("");
@@ -35,18 +37,18 @@
 
     isSubmit = true;
 
-    let upload = await uploadFormData(file);
+    let upload = await uploadFormData(data.supabase, file);
     
     let body = {
-      company: data.company,
+      company: data.company.company,
       employee: data.user.email,
       reason: note,
       type,
       start_date: date,
-      attachments: upload ? upload.path : ''
+      attachments: upload ? upload.fullPath : ''
     }
 
-    let create = await supabase.from('requests').insert([body]);
+    let create = await data.supabase.from('requests').insert([body]);
     if (create.error) {
       alert("Gagal mengirim request. Silakan coba lagi.");
       console.error("Error creating request:", create.error);
@@ -60,8 +62,21 @@
       file = null;
 
       resetFile();
+      getMyRequest();
 
       isSubmit = false;
+    }
+  }
+
+  onMount(() => {
+    getMyRequest();
+  });
+
+  async function getMyRequest() {
+    let email = data.user.email;
+    let { data: reqs }  = await data.supabase.from("requests").select("*, companies(name, description)").eq("employee", email).order('id', { ascending: false });
+    if (reqs) {
+      myReqs = reqs;
     }
   }
 </script>
@@ -70,7 +85,7 @@
   <Tabs.Root value="account" class="w-full">
     <Tabs.List class="w-full mb-6">
       <Tabs.Trigger value="account">Form Request</Tabs.Trigger>
-      <Tabs.Trigger value="password">My Requests</Tabs.Trigger>
+      <Tabs.Trigger value="request">My Requests</Tabs.Trigger>
     </Tabs.List>
     <Tabs.Content value="account">
       <!-- Jenis Request -->
@@ -124,8 +139,19 @@
         {/if}
       </button>
     </Tabs.Content>
-    <Tabs.Content value="password">
-
+    <Tabs.Content value="request">
+      <ul class="mb-6">
+        {#each myReqs as emp}
+          <li class="mb-2 border p-2 rounded-lg flex gap-3 items-center bg-white">
+            <img src="https://ui-avatars.com/api/?name={emp.type}&background=random&size=64" alt="Avatar" class="w-10 h-10 rounded-full" />
+            <div>
+              <p class="font-medium">{String(emp.type).toUpperCase()}</p>
+              <p class="text-xs">{emp.companies.name}</p>
+              <p class="text-xs text-gray-500 italic">{emp.created_at.split("T")[0]}</p>
+            </div>
+          </li>
+        {/each}
+      </ul>
     </Tabs.Content>
   </Tabs.Root>
 

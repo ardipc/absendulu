@@ -2,7 +2,6 @@
 	import Button from "$lib/components/ui/button/button.svelte";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
 
-	import { supabase } from "$lib/supabase.js";
 	import { Edit } from "@lucide/svelte";
 	import { onMount } from "svelte";
 
@@ -37,7 +36,7 @@
       return;
     }
     let body = { name: siteName, address: siteAddress, radius: siteRadius, latitude: siteLat, longitude: siteLng }
-    const { error } = await supabase.from("sites").insert([body]).select()
+    const { error } = await data.supabase.from("sites").insert([body]).select()
     if (error) console.log(error)
     alert("Lokasi baru berhasil dibuat!");
   }
@@ -48,7 +47,7 @@
       return;
     }
     company = { owner: data.user.email, name: companyName, description: companyAddress };
-    const create = await supabase.from("companies").insert([company]).select()
+    const create = await data.supabase.from("companies").insert([company]).select()
     console.log(create)
     alert(`Company ${company.name} berhasil dibuat!`);
   }
@@ -72,7 +71,7 @@
   async function checkingCompany() {
     loading = true
 
-    const { data: response } = await supabase.from("companies").select("*,sites(*),employees(*)").eq("owner", data.user.email);
+    const { data: response } = await data.supabase.from("companies").select("*,sites(*),employees(*)").eq("owner", data.user.email);
     if (response?.length === 0) company = null;
     else if (response) company = response[0];
     else company = null;

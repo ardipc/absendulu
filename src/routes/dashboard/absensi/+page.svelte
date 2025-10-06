@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { supabase } from './../../../lib/supabase.ts';
 	import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
 	import { uploadBase64 } from "$lib/upload";
   import { onMount, onDestroy } from "svelte";
@@ -8,9 +7,12 @@
   let { data } = $props();
 
   let loading     = $state(false);
+  let sending     = $state(false);
   let isWorkIn    = $state(true);
   let work        = $state<any | null>(null);
-  let attendance  = $state<any>(null);
+  let attendance  = $state<any>(data.attendance);
+
+  console.log({ attendance })
 
   let videoElement: HTMLVideoElement | null = $state(null);
   let canvasElement: HTMLCanvasElement | null = $state(null);
@@ -45,21 +47,12 @@
   async function getWorkIn() {
     loading = true;
     let get = await data.supabase.from("employees")
-                .select("*, companies(*, sites(*))")
-                .eq("email", data.user.email)
-                .single();
+      .select("*, companies(*, sites(*))")
+      .eq("email", data.user.email)
+      .single();
+
     if (get.data) { 
       work = get.data;
-
-      let one = await data.supabase.from("attendances")
-        .select("*, site(name, address, companies(name))")
-        .eq("email", data.user.email)
-        .eq("date", new Date().toISOString().split("T")[0])
-        .single();
-      
-      if (one) {
-        attendance = one.data;
-      }
     }
 
     if (get.status === 406) {
@@ -124,6 +117,7 @@
   }
 
   async function submitAbsensi() {
+    sending = true;
     if (!capturedImage) return;
 
     let payload = {
@@ -199,8 +193,8 @@
           <p class="mt-2 text-center text-red-600">Gagal mendapatkan lokasi.</p>
         {/if}
       </div>
-      <button onclick={submitAbsensi} class="px-4 py-3 my-3 bg-green-500 w-full cursor-pointer text-white rounded-xl">
-        Submit
+      <button disabled={sending} onclick={submitAbsensi} class={`px-4 py-3 my-3 ${sending ? 'bg-gray-400' : 'bg-green-500'} w-full cursor-pointer text-white rounded-xl`}>
+        {sending ? 'Mengirimkan...' : 'Absen Sekarang'}
       </button>
       <button onclick={retry} class="px-4 py-2 w-full rounded-lg cursor-pointer">
         Ulangi

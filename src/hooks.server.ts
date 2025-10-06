@@ -5,11 +5,11 @@ import {
 } from '@sveltejs/kit'
 import { sequence } from '@sveltejs/kit/hooks'
 
-const VITE_SUPABASE_URL         = "https://lvwzvhzsfphyhswahgot.supabase.co";
-const VITE_SUPABASE_ANON_KEY    = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2d3p2aHpzZnBoeWhzd2FoZ290Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4NzA3MzAsImV4cCI6MjA3MjQ0NjczMH0.JX5Y0xDjmWKet1G8D-CeL0o5cVh2dFZx7uBb30ltA5M";
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 
 const supabase: Handle = async ({ event, resolve }) => {
-  event.locals.supabase = createServerClient(VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, {
+
+  event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
     cookies: {
       getAll: () => event.cookies.getAll(),
       setAll: (cookiesToSet) => {
