@@ -1,8 +1,6 @@
 <script lang="ts">
   let { data } = $props();
 
-  console.log('dashboard', data);
-
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long",
     year: "numeric",

@@ -1,14 +1,16 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { supabase } from './../../../lib/supabase.ts';
 	import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
-	import { supabase } from "$lib/supabase.js";
 	import { uploadBase64 } from "$lib/upload";
   import { onMount, onDestroy } from "svelte";
 
   let { data } = $props();
 
-  let loading = $state(false);
-  let isWorkIn = $state(true);
-  let work = $state<any | null>(null);
+  let loading     = $state(false);
+  let isWorkIn    = $state(true);
+  let work        = $state<any | null>(null);
+  let attendance  = $state<any>(null);
 
   let videoElement: HTMLVideoElement | null = $state(null);
   let canvasElement: HTMLCanvasElement | null = $state(null);
@@ -42,8 +44,23 @@
 
   async function getWorkIn() {
     loading = true;
-    let get = await supabase.from("employees").select("*, companies(*, sites(*))").eq("email", data.user.email).single();
-    if (get.data) work = get.data;
+    let get = await data.supabase.from("employees")
+                .select("*, companies(*, sites(*))")
+                .eq("email", data.user.email)
+                .single();
+    if (get.data) { 
+      work = get.data;
+
+      let one = await data.supabase.from("attendances")
+        .select("*, site(name, address, companies(name))")
+        .eq("email", data.user.email)
+        .eq("date", new Date().toISOString().split("T")[0])
+        .single();
+      
+      if (one) {
+        attendance = one.data;
+      }
+    }
 
     if (get.status === 406) {
       isWorkIn = false
@@ -109,22 +126,50 @@
   async function submitAbsensi() {
     if (!capturedImage) return;
 
-    const payload = {
-      image: capturedImage,
-      latitude,
-      longitude,
-      // tanggal dalam format yyyy-mm-dd
-      tanggal: new Date().toISOString().split("T")[0],
-      timestamp: new Date().toISOString()
+    let payload = {
+      site: work.id,
+      email: data.user.email,
+      date: new Date().toISOString().split("T")[0],
+      status: 'SUBMIT'
     };
 
-    console.log("Payload absensi:", payload);
+    if (attendance) {
+      payload = { 
+        ...payload, 
+        clock_out_ts: new Date().toISOString(),
+        clock_out_lat: latitude,
+        clock_out_lng: longitude,
+      }
+    } else {
+      payload = {
+        ...payload,
+        clock_in_ts: new Date().toISOString(),
+        clock_in_lat: latitude,
+        clock_in_lng: longitude,
+      }
+    }
 
     // Upload gambar ke Supabase
     try {
-      const filePath = `absensi/${payload.tanggal}_${Date.now()}.png`;
-      const upload = await uploadBase64(capturedImage, filePath);
-      console.log("Upload result:", upload);
+      const filePath = `absensi/${payload.date}_${Date.now()}.png`;
+      const upload = await uploadBase64(data.supabase, capturedImage, filePath);
+
+      if (upload) {
+        if (attendance) {
+          payload = { ...payload, clock_out_photo: upload.fullPath };
+          const update = await data.supabase.from("attendances").update(payload).eq('id', attendance.id);
+          if (update) {
+            goto(`/dashboard/absensi/${payload.date}`)
+          }
+        } else {
+          payload = { ...payload, clock_in_photo: upload.fullPath };
+          const insert = await data.supabase.from("attendances").insert([payload]);
+          if (insert) {
+            goto(`/dashboard/absensi/${payload.date}`)
+          }
+        }
+      }
+      
     } catch (err) {
       console.error("Error submitting absensi:", err);
       alert("Terjadi kesalahan saat mengirim absensi.");
@@ -143,24 +188,27 @@
   {/if}
 
   {#if capturedImage}
-    <!-- Preview hasil foto -->
-    <img src={capturedImage} alt="Captured" class="rounded-xl shadow-md w-full max-w-md" />
-    <div>
-      {#if latitude !== null && longitude !== null}
-        <p class="mt-2 text-green-600">Lokasi berhasil didapatkan:</p>
-        <p>Latitude: {latitude}</p>
-        <p>Longitude: {longitude}</p>
-      {:else}
-        <p class="mt-2 text-center text-red-600">Gagal mendapatkan lokasi.</p>
-      {/if}
+    <div class="">
+      <img src={capturedImage} alt="Captured" class="rounded-xl shadow-md w-full" />
+      <div class="border rounded-xl p-4 my-3">
+        {#if latitude !== null && longitude !== null}
+          <p class="text-green-600">Lokasi berhasil didapatkan:</p>
+          <p>Latitude: {latitude}</p>
+          <p>Longitude: {longitude}</p>
+        {:else}
+          <p class="mt-2 text-center text-red-600">Gagal mendapatkan lokasi.</p>
+        {/if}
+      </div>
+      <button onclick={submitAbsensi} class="px-4 py-3 my-3 bg-green-500 w-full cursor-pointer text-white rounded-xl">
+        Submit
+      </button>
+      <button onclick={retry} class="px-4 py-2 w-full rounded-lg cursor-pointer">
+        Ulangi
+      </button>
     </div>
-    <button onclick={submitAbsensi} class="px-4 py-2 my-3 bg-green-500 w-full text-white rounded-lg">
-      Kirim Absensi
-    </button>
-    <button onclick={retry} class="px-4 py-2 w-full rounded-lg">
-      Ulangi
-    </button>
-  {:else}
+  {/if}
+
+  {#if !capturedImage}
 
     {#if work && !loading}
       <div class="info-work bg-white my-2 border rounded-lg p-3">
@@ -180,8 +228,8 @@
             <p class="text-sm text-gray-600">Lokasi Kerja: {work.companies.sites[0].name} - {work.companies.sites[0].address}</p>
           </div>
 
-          <button onclick={capture} class="w-full py-4 bg-blue-500 text-white rounded-full text-lg font-semibold shadow-md hover:bg-blue-600 active:scale-95 transition">
-            Clock In
+          <button onclick={capture} class={`w-full py-4 bg-blue-500 text-white rounded-full text-lg font-semibold shadow-md hover:bg-blue-600 active:scale-95 transition`}>
+            Clock {attendance ? 'Out' : 'In'}
           </button>
         {:else}
           <p class="text-sm text-gray-600">Belum ada lokasi kerja. Silakan hubungi admin.</p>

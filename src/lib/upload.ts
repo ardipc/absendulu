@@ -1,6 +1,7 @@
-import { supabase } from "./supabase"
+import type { SupabaseClient } from "@supabase/supabase-js"
+// import { supabase } from "./supabase"
 
-export async function uploadBase64(base64String: string, filePath: string) {
+export async function uploadBase64(supabase: SupabaseClient, base64String: string, filePath: string) {
   // Hilangkan prefix "data:image/png;base64,"
   const base64Data = base64String.split(',')[1]
 
@@ -28,7 +29,7 @@ export async function uploadBase64(base64String: string, filePath: string) {
 }
 
 
-export async function uploadFormData(file: File | null) {
+export async function uploadFormData(supabase: SupabaseClient, file: File | null) {
   if (!file) {
     throw new Error("File tidak ditemukan di FormData");
   }

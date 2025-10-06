@@ -7,7 +7,6 @@
   let showInstall = $state(false);
 
   let { data } = $props();
-  console.log("index:", data)
 
   onMount(() => {
     window.addEventListener("beforeinstallprompt", (e) => {

@@ -1,24 +1,25 @@
 <script lang="ts">
   import { supabase } from '$lib/supabase';
-  import { onMount } from 'svelte';
+  // import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 
-  let user: any = $state(null);
+  let { data }  = $props();
+  let user: any = $state(data.user);
 
-  onMount(async () => {
-    const { data } = await supabase.auth.getUser();
-    if (data?.user) {
-      user = data.user;
-      console.log(user)
-    } else {
-      goto('/'); // kalau belum login diarahkan ke halaman awal
-    }
-  });
+  // onMount(async () => {
+  //   const { data } = await supabase.auth.getUser();
+  //   if (data?.user) {
+  //     user = data.user;
+  //     console.log(user)
+  //   } else {
+  //     goto('/'); // kalau belum login diarahkan ke halaman awal
+  //   }
+  // });
 
   async function logout() {
-    await supabase.auth.signOut();
-    goto('/');
+    await data.supabase.auth.signOut();
+    window.location.href = '/';
   }
 
 </script>
