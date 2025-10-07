@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
 	import Button from "$lib/components/ui/button/button.svelte";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
 
@@ -7,7 +8,6 @@
 
   let { data } = $props();
 
-  console.log("karyawan:", data)
 
   // Simulasi user plan
   let isFreePlan = true;
@@ -143,10 +143,12 @@
           {/each}
         </ul>
       {/if}
-      <Button onclick={addEmployee}
-        class="w-full py-2 rounded-lg">
-        Tambah Lokasi
-      </Button>
+      {#if company.sites.length === 0}
+        <Button onclick={addEmployee}
+          class="w-full py-2 rounded-lg">
+          Tambah Lokasi
+        </Button>
+      {/if}
     </div>
 
     <div class="my-3 border rounded-lg p-3 bg-white">
@@ -167,10 +169,12 @@
           {/each}
         </ul>
       {/if}
-      <Button onclick={addEmployee}
-        class="w-full py-2 rounded-lg">
-        Tambah Karyawan
-      </Button>
+      {#if company.employees.length < 10}
+        <Button onclick={() => goto('/dashboard/karyawan/form')}
+          class="w-full py-2 rounded-lg">
+          Tambah Karyawan
+        </Button>
+      {/if}
     </div>
 
   {/if}
