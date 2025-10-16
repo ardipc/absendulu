@@ -3,10 +3,10 @@
 
   let { data } = $props();
 
-  let nama = "";
-  let email = "";
-  let role = "";
-  let phone = "";
+  let nama = $state("");
+  let email = $state("");
+  let role = $state("");
+  let phone = $state("");
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -18,8 +18,6 @@
       .from('employees')
       .insert([newEmployee]);
     if (error) console.error(error);
-
-    console.log(insert)
 
     // Reset form setelah submit
     nama = email = role = phone = "";
@@ -87,7 +85,7 @@
     </button>
 
     <div class="w-full flex justify-center">
-      <a href="/dashboard/karyawan" class="text-center">Back</a>
+      <a href="/dashboard/karyawan" class="text-center">Kembali</a>
     </div>
   </form>
 </div>

@@ -6,11 +6,11 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/publi
 export const load: LayoutLoad = async ({ data, depends, fetch }) => {
   depends('supabase:auth')
 
-  if (isBrowser()) {
-    console.log("Browser:", { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY });
-  } else {
-    console.log("Server:", { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY });
-  }
+  // if (isBrowser()) {
+  //   console.log("Browser:", { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY });
+  // } else {
+  //   console.log("Server:", { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY });
+  // }
 
   const supabase = isBrowser()
     ? createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {

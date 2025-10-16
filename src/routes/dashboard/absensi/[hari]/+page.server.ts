@@ -4,7 +4,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	let one = await locals.supabase.from("attendances")
         .select("*, site(name, address, companies(name))")
         .eq("email", locals.user.email)
-        .eq("date", new Date().toISOString().split("T")[0])
+        .eq("date", params.hari)
         .single();
       
   if (one) {

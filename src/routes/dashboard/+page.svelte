@@ -43,12 +43,11 @@
           type="button"
           class="bg-white p-4 shadow rounded-xl flex justify-between items-center w-full text-left"
           aria-label="Lihat detail absensi"
-          onclick={() => goto(`/dashboard/absensi/${new Date().toISOString().split('T')[0]}`)}
-        >
+          onclick={() => goto(`/dashboard/absensi/${rec.date}`)}>
           <div>
-            <p class="font-medium">{rec.sites.name}</p>
+            <p class="font-medium">{rec.date}</p>
+            <p class="text-sm font-bold">{rec.sites.name}</p>
             <p class="text-xs">{rec.status}</p>
-            <p class="text-xs">{rec.date}</p>
           </div>
           <div class="flex gap-2 not-last-of-type:justify-between text-center">
             <div class="border p-2 rounded-xl">

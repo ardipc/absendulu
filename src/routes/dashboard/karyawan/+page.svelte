@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import Button from "$lib/components/ui/button/button.svelte";
   import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
 
 	import { Edit } from "@lucide/svelte";
@@ -8,38 +7,15 @@
 
   let { data } = $props();
 
-
   // Simulasi user plan
   let isFreePlan = true;
 
   // Simulasi company
   let company: { owner: string | undefined; name: string; description: string } | any[] | null = $state(null);
 
-  // Simulasi daftar karyawan
-  let employees: { name: string; position: string }[] = $state([]);
-
   // Form input
   let companyName = $state("");
   let companyAddress = $state("");
-  let empName = $state("");
-  let empPosition = $state("");
-
-  let siteName = $state("");
-  let siteAddress = $state("");
-  let siteRadius = $state(50);
-  let siteLat = $state(0);
-  let siteLng = $state(0);
-
-  async function createSite() {
-    if (!siteName || !siteAddress || !siteRadius || !siteLat || !siteLng) {
-      alert("Semua form harus diisi");
-      return;
-    }
-    let body = { name: siteName, address: siteAddress, radius: siteRadius, latitude: siteLat, longitude: siteLng }
-    const { error } = await data.supabase.from("sites").insert([body]).select()
-    if (error) console.log(error)
-    alert("Lokasi baru berhasil dibuat!");
-  }
 
   async function createCompany() {
     if (!companyName || !companyAddress) {
@@ -50,16 +26,6 @@
     const create = await data.supabase.from("companies").insert([company]).select()
     console.log(create)
     alert(`Company ${company.name} berhasil dibuat!`);
-  }
-
-  function addEmployee() {
-    if (!empName || !empPosition) {
-      alert("Isi nama & jabatan karyawan");
-      return;
-    }
-    employees.push({ name: empName, position: empPosition });
-    empName = "";
-    empPosition = "";
   }
 
   let loading = $state(true)
@@ -120,60 +86,68 @@
         <h1 class="text-xl font-bold">{company.name}</h1>
         <p class="text-gray-600">{company.description}</p>
       </div>
-      <button class="rounded-full">
+      <button class="rounded-full" onclick={() => goto(`/dashboard/karyawan/company`)}>
         <Edit class="w-4 h-4 cursor-pointer" />
       </button>
     </div>
 
-    <div class="my-3 border rounded-lg p-3 bg-white">
+    <div class="mt-3 mb-6">
       <h2 class="font-bold text-xl mb-3">Lokasi Kerja</h2>
       {#if company.sites.length === 0}
         <p class="text-gray-500 mb-3">Belum ada lokasi kerja. Tambahkan lokasi kerja untuk mengaktifkan fitur absensi berbasis lokasi.</p>
       {:else}
         <ul class="mb-6">
           {#each company.sites as site}
-            <li class="mb-2 border p-2 rounded-lg flex gap-3 items-center">
-              <img src="https://ui-avatars.com/api/?name={site.name}&background=random&size=64" alt="Avatar" class="w-10 h-10 rounded-full" />
-              <div>
-                <p class="font-medium">{site.name}</p>
-                <p class="text-xs text-gray-500">{site.address}</p>
-                <p class="text-sm">Radius: {site.radius}m</p>
-              </div>
-            </li>
+            <a href={`/dashboard/karyawan/lokasi/${site.id}`}>
+              <li class="mb-2 border p-2 rounded-lg flex gap-3 items-center">
+                <img src="https://ui-avatars.com/api/?name={site.name}&background=random&size=64" alt="Avatar" class="w-10 h-10 rounded-full" />
+                <div>
+                  <p class="font-medium">{site.name}</p>
+                  <p class="text-xs text-gray-500">{site.address}</p>
+                  <p class="text-sm">Radius: {site.radius}m</p>
+                </div>
+              </li>
+            </a>
           {/each}
         </ul>
       {/if}
       {#if company.sites.length === 0}
-        <Button onclick={addEmployee}
-          class="w-full py-2 rounded-lg">
-          Tambah Lokasi
-        </Button>
+        <button type="button"
+            onclick={() => goto('/dashboard/karyawan/lokasi')}
+            class="w-full py-3 text-white text-lg font-semibold bg-green-600 rounded-full hover:bg-green-700 transition"
+          >
+          Buat Lokasi Kerja
+        </button>
       {/if}
     </div>
 
-    <div class="my-3 border rounded-lg p-3 bg-white">
+    <div class="my-3">
       <h2 class="font-bold text-xl mb-3">Daftar Karyawan</h2>
       {#if company.employees.length === 0}
         <p class="text-gray-500 mb-3">Belum ada karyawan. Tambahkan karyawan untuk mengelola absensi.</p>
       {:else}
         <ul class="mb-6">
           {#each company.employees as emp}
-            <li class="mb-2 border p-2 rounded-lg flex gap-3 items-center">
-              <img src="https://ui-avatars.com/api/?name={emp.name}&background=random&size=64" alt="Avatar" class="w-10 h-10 rounded-full" />
-              <div>
-                <p class="font-medium">{emp.name}</p>
-                <p class="text-xs">{emp.phone}</p>
-                <p class="text-xs text-gray-500 italic">{emp.role}</p>
-              </div>
-            </li>
+            <a href={`/dashboard/karyawan/view/${emp.id}`} class="shadow-2xl">
+              <li class="mb-2 border p-2 rounded-lg flex gap-3 items-center">
+                <img src="https://ui-avatars.com/api/?name={emp.name}&background=random&size=64" alt="Avatar" class="w-10 h-10 rounded-full" />
+                <div>
+                  <p class="font-medium">{emp.name}</p>
+                  <p class="text-xs">{emp.email} - {emp.phone}</p>
+                  <p class="text-xs text-gray-500 italic">{emp.role}</p>
+                </div>
+              </li>
+            </a>
           {/each}
         </ul>
       {/if}
       {#if company.employees.length < 10}
-        <Button onclick={() => goto('/dashboard/karyawan/form')}
-          class="w-full py-2 rounded-lg">
+        <button type="button"
+          onclick={() => goto('/dashboard/karyawan/form')}
+          class="w-full py-3 text-white text-lg font-semibold bg-green-600 rounded-full hover:bg-green-700 transition"
+        >
           Tambah Karyawan
-        </Button>
+        </button>
       {/if}
     </div>
 

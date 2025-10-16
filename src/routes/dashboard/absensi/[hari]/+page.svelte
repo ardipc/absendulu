@@ -31,7 +31,7 @@
       let one = await data.supabase.from("attendances")
         .select("*, site(name, address, companies(name))")
         .eq("email", data.user.email)
-        .eq("date", new Date().toISOString().split("T")[0])
+        .eq("date", data.slug)
         .single();
       
       if (one) {

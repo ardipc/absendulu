@@ -4,7 +4,6 @@
   import * as Tabs from '$lib/components/ui/tabs/index.js';
 
   let { data } = $props();
-  console.log({data})
 
   let isSubmit = $state(false);
   let myReqs = $state<any[]>([]);

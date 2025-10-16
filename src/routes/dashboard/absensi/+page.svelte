@@ -51,6 +51,8 @@
       .eq("email", data.user.email)
       .single();
 
+    console.log("get:", get.data)
+
     if (get.data) { 
       work = get.data;
     }
@@ -121,7 +123,7 @@
     if (!capturedImage) return;
 
     let payload = {
-      site: work.id,
+      site: work.companies.sites[0].id,
       email: data.user.email,
       date: new Date().toISOString().split("T")[0],
       status: 'SUBMIT'
