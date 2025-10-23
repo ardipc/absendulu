@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
   import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import { formatDate } from '$lib/utils.js';
 
   let { data } = $props();
   console.log(data)
@@ -134,11 +135,11 @@
             <div class="flex gap-2 not-last-of-type:justify-between text-center">
               <div class="border p-2 rounded-xl">
                 <p class="text-xs font-bold">Clock In</p>
-                <p class="text-sm text-gray-700">{rec.clock_in_ts ? valClockIn : "-"}</p>
+                <p class="text-sm text-gray-700">{rec.clock_in_ts ? formatDate(rec.clock_in_ts, "HH:mm:ss") : "-"}</p>
               </div>
               <div class="border p-2 rounded-xl">
                 <p class="text-xs font-bold">Clock Out</p>
-                <p class="text-sm text-gray-700">{rec.clock_out_ts ? valClockOut : "-"}</p>
+                <p class="text-sm text-gray-700">{rec.clock_out_ts ? formatDate(rec.clock_out_ts, "HH:mm:ss") : "-"}</p>
               </div>
             </div>
           </button>

@@ -1,243 +1,561 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import Skeleton from "$lib/components/ui/skeleton/skeleton.svelte";
-	import { uploadBase64 } from "$lib/upload";
-  import { onMount, onDestroy } from "svelte";
+	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
+	import { uploadBase64 } from '$lib/upload';
+	import { onMount, onDestroy } from 'svelte';
+	import {
+		Camera,
+		MapPin,
+		CheckCircle,
+		XCircle,
+		RotateCcw,
+		Send,
+		User,
+		Building2,
+		AlertCircle,
+		Sparkles,
+		Clock,
+		LogIn,
+		LogOut,
+		Navigation
+	} from '@lucide/svelte';
 
-  let { data } = $props();
+	let { data } = $props();
 
-  let loading     = $state(false);
-  let sending     = $state(false);
-  let isWorkIn    = $state(true);
-  let work        = $state<any | null>(null);
-  let attendance  = $state<any>(data.attendance);
+	interface Work {
+		name: string;
+		companies: {
+			name: string;
+			sites: Array<{
+				id: string;
+				name: string;
+				address: string;
+			}>;
+		};
+	}
 
-  console.log({ attendance })
+	interface Attendance {
+		id: string;
+		clock_in_ts?: string;
+		clock_out_ts?: string;
+	}
 
-  let videoElement: HTMLVideoElement | null = $state(null);
-  let canvasElement: HTMLCanvasElement | null = $state(null);
+	let loading = $state(false);
+	let sending = $state(false);
+	let isWorkIn = $state(true);
+	let work = $state<Work | null>(null);
+	let attendance = $state<Attendance | null>(data.attendance);
 
-  let stream: MediaStream | null = $state(null);
-  let capturedImage: string | null = $state(null);
+	let videoElement: HTMLVideoElement | null = $state(null);
+	let canvasElement: HTMLCanvasElement | null = $state(null);
 
-  let latitude: number | null = $state(null);
-  let longitude: number | null = $state(null);
+	let stream: MediaStream | null = $state(null);
+	let capturedImage: string | null = $state(null);
 
-  async function startCamera() {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" }
-      });
-      if (videoElement) {
-        videoElement.srcObject = stream;
-        await videoElement.play(); // pastikan jalan
-      }
-    } catch (err) {
-      console.error("Camera access denied:", err);
-    }
-  }
+	let latitude: number | null = $state(null);
+	let longitude: number | null = $state(null);
 
-  function stopCamera() {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      stream = null;
-    }
-  }
+	let currentTime = $state('');
 
-  async function getWorkIn() {
-    loading = true;
-    let get = await data.supabase.from("employees")
-      .select("*, companies(*, sites(*))")
-      .eq("email", data.user.email)
-      .single();
+	// Update current time
+	function updateTime() {
+		const now = new Date();
+		currentTime = now.toLocaleTimeString('id-ID', {
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit'
+		});
+	}
 
-    console.log("get:", get.data)
+	async function startCamera() {
+		try {
+			stream = await navigator.mediaDevices.getUserMedia({
+				video: { facingMode: 'user' }
+			});
+			if (videoElement) {
+				videoElement.srcObject = stream;
+				await videoElement.play();
+			}
+		} catch (err) {
+			console.error('Camera access denied:', err);
+		}
+	}
 
-    if (get.data) { 
-      work = get.data;
-    }
+	function stopCamera() {
+		if (stream) {
+			stream.getTracks().forEach((track) => track.stop());
+			stream = null;
+		}
+	}
 
-    if (get.status === 406) {
-      isWorkIn = false
-    }
+	async function getWorkIn() {
+		loading = true;
+		let get = await data.supabase
+			.from('employees')
+			.select('*, companies(*, sites(*))')
+			.eq('email', data.user?.email)
+			.single();
 
-    loading = false;
-  }
+		if (get.data) {
+			work = get.data;
+		}
 
-  onMount(() => {
-    getWorkIn();
-  });
+		if (get.status === 406) {
+			isWorkIn = false;
+		}
 
-  $effect(() => {
-    if (work) {
-      startCamera();
-    }
-  });
+		loading = false;
+	}
 
-  onDestroy(() => {
-    stopCamera();
-  });
+	onMount(() => {
+		getWorkIn();
+		updateTime();
+		const interval = setInterval(updateTime, 1000);
+		return () => clearInterval(interval);
+	});
 
-  function capture() {
-    if (canvasElement && videoElement) {
-      const context = canvasElement.getContext("2d");
-      canvasElement.width = videoElement.videoWidth;
-      canvasElement.height = videoElement.videoHeight;
-      if (context) {
-        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-        capturedImage = canvasElement.toDataURL("image/png");
-      }
-    }
+	$effect(() => {
+		if (work) {
+			startCamera();
+		}
+	});
 
-    // Ambil lokasi sekali
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          latitude = pos.coords.latitude;
-          longitude = pos.coords.longitude;
-          console.log("Latitude:", latitude, "Longitude:", longitude);
-        },
-        (err) => {
-          console.error("Error getting location:", err);
-          latitude = -7.250445; // Contoh fallback
-          longitude = 112.768845;
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
-  }
+	onDestroy(() => {
+		stopCamera();
+	});
 
-  function retry() {
-    capturedImage = null;
-    latitude = null;
-    longitude = null;
-    startCamera(); // hidupkan kamera lagi
-  }
+	function capture() {
+		if (canvasElement && videoElement) {
+			const context = canvasElement.getContext('2d');
+			canvasElement.width = videoElement.videoWidth;
+			canvasElement.height = videoElement.videoHeight;
+			if (context) {
+				context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+				capturedImage = canvasElement.toDataURL('image/png');
+			}
+		}
 
-  async function submitAbsensi() {
-    sending = true;
-    if (!capturedImage) return;
+		// Get location
+		if ('geolocation' in navigator) {
+			navigator.geolocation.getCurrentPosition(
+				(pos) => {
+					latitude = pos.coords.latitude;
+					longitude = pos.coords.longitude;
+				},
+				(err) => {
+					console.error('Error getting location:', err);
+					latitude = -7.250445;
+					longitude = 112.768845;
+				},
+				{
+					enableHighAccuracy: true,
+					timeout: 10000,
+					maximumAge: 0
+				}
+			);
+		}
+	}
 
-    let payload = {
-      site: work.companies.sites[0].id,
-      email: data.user.email,
-      date: new Date().toISOString().split("T")[0],
-      status: 'SUBMIT'
-    };
+	function retry() {
+		capturedImage = null;
+		latitude = null;
+		longitude = null;
+		startCamera();
+	}
 
-    if (attendance) {
-      payload = { 
-        ...payload, 
-        clock_out_ts: new Date().toISOString(),
-        clock_out_lat: latitude,
-        clock_out_lng: longitude,
-      }
-    } else {
-      payload = {
-        ...payload,
-        clock_in_ts: new Date().toISOString(),
-        clock_in_lat: latitude,
-        clock_in_lng: longitude,
-      }
-    }
+	async function submitAbsensi() {
+		sending = true;
+		if (!capturedImage || !work) return;
 
-    // Upload gambar ke Supabase
-    try {
-      const filePath = `absensi/${payload.date}_${Date.now()}.png`;
-      const upload = await uploadBase64(data.supabase, capturedImage, filePath);
+		let payload: Record<string, unknown> = {
+			site: work.companies.sites[0].id,
+			email: data.user?.email,
+			date: new Date().toISOString().split('T')[0],
+			status: 'SUBMIT'
+		};
 
-      if (upload) {
-        if (attendance) {
-          payload = { ...payload, clock_out_photo: upload.fullPath };
-          const update = await data.supabase.from("attendances").update(payload).eq('id', attendance.id);
-          if (update) {
-            goto(`/dashboard/absensi/${payload.date}`)
-          }
-        } else {
-          payload = { ...payload, clock_in_photo: upload.fullPath };
-          const insert = await data.supabase.from("attendances").insert([payload]);
-          if (insert) {
-            goto(`/dashboard/absensi/${payload.date}`)
-          }
-        }
-      }
-      
-    } catch (err) {
-      console.error("Error submitting absensi:", err);
-      alert("Terjadi kesalahan saat mengirim absensi.");
-    }
-  } 
+		if (attendance) {
+			payload = {
+				...payload,
+				clock_out_ts: new Date().toISOString(),
+				clock_out_lat: latitude,
+				clock_out_lng: longitude
+			};
+		} else {
+			payload = {
+				...payload,
+				clock_in_ts: new Date().toISOString(),
+				clock_in_lat: latitude,
+				clock_in_lng: longitude
+			};
+		}
+
+		try {
+			const filePath = `absensi/${payload.date}_${Date.now()}.png`;
+			const upload = await uploadBase64(data.supabase, capturedImage, filePath);
+
+			if (upload) {
+				if (attendance) {
+					payload = { ...payload, clock_out_photo: upload.fullPath };
+					const update = await data.supabase
+						.from('attendances')
+						.update(payload)
+						.eq('id', attendance.id);
+					if (update) {
+						goto(`/dashboard/absensi/${payload.date}`);
+					}
+				} else {
+					payload = { ...payload, clock_in_photo: upload.fullPath };
+					const insert = await data.supabase.from('attendances').insert([payload]);
+					if (insert) {
+						goto(`/dashboard/absensi/${payload.date}`);
+					}
+				}
+			}
+		} catch (err) {
+			console.error('Error submitting absensi:', err);
+			alert('Terjadi kesalahan saat mengirim absensi.');
+		}
+	}
+
+	function getCurrentDate() {
+		return new Date().toLocaleDateString('id-ID', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
+	}
 </script>
 
-<main class="p-2 md:p-6 bg-gray-50">
-  {#if loading}
-    <div class="grid grid-cols-1 gap-2">
-      <Skeleton class="h-[24px] w-full rounded" />
-      <Skeleton class="h-[60px] w-full rounded" />
-      <Skeleton class="h-[20px] w-full rounded" />
-      <Skeleton class="h-[40px] w-full rounded" />
-    </div>
-  {/if}
+<svelte:head>
+	<title>Absensi - AbsenDulu</title>
+</svelte:head>
 
-  {#if capturedImage}
-    <div class="">
-      <img src={capturedImage} alt="Captured" class="rounded-xl shadow-md w-full" />
-      <div class="border rounded-xl p-4 my-3">
-        {#if latitude !== null && longitude !== null}
-          <p class="text-green-600">Lokasi berhasil didapatkan:</p>
-          <p>Latitude: {latitude}</p>
-          <p>Longitude: {longitude}</p>
-        {:else}
-          <p class="mt-2 text-center text-red-600">Gagal mendapatkan lokasi.</p>
-        {/if}
-      </div>
-      <button disabled={sending} onclick={submitAbsensi} class={`px-4 py-3 my-3 ${sending ? 'bg-gray-400' : 'bg-green-500'} w-full cursor-pointer text-white rounded-xl`}>
-        {sending ? 'Mengirimkan...' : 'Absen Sekarang'}
-      </button>
-      <button onclick={retry} class="px-4 py-2 w-full rounded-lg cursor-pointer">
-        Ulangi
-      </button>
-    </div>
-  {/if}
+<main class="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 p-4 md:p-8">
+	{#if loading}
+		<!-- Enhanced Loading State -->
+		<div class="mx-auto max-w-4xl space-y-6">
+			<div class="rounded-3xl bg-white p-8 shadow-2xl">
+				<Skeleton class="mb-4 h-12 w-64 rounded-xl" />
+				<Skeleton class="mb-6 h-6 w-96 rounded-lg" />
+				<Skeleton class="h-96 rounded-2xl" />
+				<Skeleton class="mt-6 h-16 rounded-2xl" />
+			</div>
+		</div>
+	{/if}
 
-  {#if !capturedImage}
+	{#if capturedImage}
+		<!-- Captured Image Preview -->
+		<div class="mx-auto max-w-4xl">
+			<!-- Header -->
+			<div class="mb-8 text-center">
+				<div
+					class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-2xl"
+				>
+					<CheckCircle class="h-10 w-10 text-white" />
+				</div>
+				<h1 class="mb-2 text-3xl font-bold text-gray-800">Preview Foto</h1>
+				<p class="text-gray-600">Pastikan foto dan lokasi Anda sudah benar</p>
+			</div>
 
-    {#if work && !loading}
-      <div class="info-work bg-white my-2 border rounded-lg p-3">
-        <h2 class="text-lg font-semibold mb-2">Halo, {work.name}</h2>
-        <p class="text-sm text-gray-600 mb-1">Kamu bekerja di {work.companies.name}</p>
-        {#if work.companies.sites.length > 0}
+			<!-- Preview Card -->
+			<div class="overflow-hidden rounded-3xl bg-white shadow-2xl">
+				<!-- Image -->
+				<div class="relative">
+					<img src={capturedImage} alt="Captured" class="w-full object-cover" />
+					<div class="absolute top-4 right-4 rounded-full bg-black/50 px-4 py-2 backdrop-blur-sm">
+						<p class="text-sm font-semibold text-white">{currentTime}</p>
+					</div>
+				</div>
 
-          <div class="my-3">
-            <!-- Kamera aktif -->
-            <video bind:this={videoElement} autoplay playsinline class="rounded-xl shadow-md w-full">
-              <track kind="captions" />
-            </video>
-            <canvas bind:this={canvasElement} class="hidden"></canvas>
-          </div>
+				<div class="p-8">
+					<!-- Location Info -->
+					<div
+						class={`mb-6 rounded-2xl p-6 ${latitude !== null && longitude !== null ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gradient-to-r from-red-50 to-pink-50'}`}
+					>
+						{#if latitude !== null && longitude !== null}
+							<div class="flex items-start gap-4">
+								<div class="rounded-xl bg-green-500 p-3">
+									<Navigation class="h-6 w-6 text-white" />
+								</div>
+								<div class="flex-1">
+									<h3 class="mb-2 flex items-center gap-2 text-lg font-bold text-green-800">
+										<CheckCircle class="h-5 w-5" />
+										Lokasi Berhasil Didapatkan
+									</h3>
+									<div class="space-y-1 text-sm text-green-700">
+										<p class="flex items-center gap-2">
+											<span class="font-semibold">Latitude:</span>
+											<span class="rounded-lg bg-white/70 px-2 py-1">{latitude.toFixed(6)}</span>
+										</p>
+										<p class="flex items-center gap-2">
+											<span class="font-semibold">Longitude:</span>
+											<span class="rounded-lg bg-white/70 px-2 py-1">{longitude.toFixed(6)}</span>
+										</p>
+									</div>
+								</div>
+							</div>
+						{:else}
+							<div class="flex items-start gap-4">
+								<div class="rounded-xl bg-red-500 p-3">
+									<XCircle class="h-6 w-6 text-white" />
+								</div>
+								<div class="flex-1">
+									<h3 class="mb-1 text-lg font-bold text-red-800">Gagal Mendapatkan Lokasi</h3>
+									<p class="text-sm text-red-700">
+										Pastikan GPS Anda aktif dan izinkan akses lokasi
+									</p>
+								</div>
+							</div>
+						{/if}
+					</div>
 
-          <div class="my-3">
-            <p class="text-sm text-gray-600">Lokasi Kerja: {work.companies.sites[0].name} - {work.companies.sites[0].address}</p>
-          </div>
+					<!-- Action Buttons -->
+					<div class="grid gap-4 md:grid-cols-2">
+						<button
+							onclick={retry}
+							class="group flex items-center justify-center gap-2 rounded-2xl border-2 border-gray-300 bg-white px-6 py-4 font-bold text-gray-700 transition-all hover:scale-105 hover:border-gray-400 hover:shadow-lg active:scale-95"
+						>
+							<RotateCcw class="h-5 w-5 transition-transform group-hover:rotate-180" />
+							Foto Ulang
+						</button>
 
-          <button onclick={capture} class={`w-full py-4 bg-blue-500 text-white rounded-full text-lg font-semibold shadow-md hover:bg-blue-600 active:scale-95 transition`}>
-            Clock {attendance ? 'Out' : 'In'}
-          </button>
-        {:else}
-          <p class="text-sm text-gray-600">Belum ada lokasi kerja. Silakan hubungi admin.</p>
-        {/if}
-      </div>
-    {/if}
+						<button
+							disabled={sending}
+							onclick={submitAbsensi}
+							class={`group flex items-center justify-center gap-2 rounded-2xl px-6 py-4 font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-2xl active:scale-95 ${
+								sending
+									? 'cursor-not-allowed bg-gray-400'
+									: 'bg-gradient-to-r from-green-500 to-emerald-600'
+							}`}
+						>
+							{#if sending}
+								<div
+									class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
+								></div>
+								Mengirimkan...
+							{:else}
+								<Send class="h-5 w-5 transition-transform group-hover:translate-x-1" />
+								Absen Sekarang
+							{/if}
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/if}
 
-    {#if isWorkIn === false}
-      <div class="p-6 card shadow rounded-xl bg-white my-2">
-        <p class="text-sm text-gray-600">Kamu tidak bekerja di perusahaan manapun.</p>
-      </div>
-    {/if}
+	{#if !capturedImage}
+		{#if work && !loading}
+			<!-- Main Attendance Interface -->
+			<div class="mx-auto max-w-4xl">
+				<!-- Header with Time -->
+				<div class="mb-8">
+					<div
+						class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-8 shadow-2xl"
+					>
+						<!-- Decorative Elements -->
+						<div
+							class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white opacity-10"
+						></div>
+						<div
+							class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white opacity-10"
+						></div>
 
-  {/if}
+						<div class="relative z-10">
+							<!-- Time Display -->
+							<div class="mb-6 text-center">
+								<div class="mb-2 flex items-center justify-center gap-2 text-white/90">
+									<Clock class="h-5 w-5" />
+									<span class="text-sm font-medium">{getCurrentDate()}</span>
+								</div>
+								<div
+									class="inline-flex items-baseline gap-2 rounded-2xl bg-white/20 px-8 py-4 backdrop-blur-sm"
+								>
+									<span class="text-6xl font-bold text-white">{currentTime}</span>
+								</div>
+							</div>
+
+							<!-- User Info -->
+							<div class="flex items-center justify-center gap-4 text-white">
+								<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
+									<User class="h-6 w-6" />
+								</div>
+								<div class="text-left">
+									<p class="text-lg font-bold">{work.name}</p>
+									<p class="flex items-center gap-2 text-sm opacity-90">
+										<Building2 class="h-4 w-4" />
+										{work.companies.name}
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{#if work.companies.sites.length > 0}
+					<!-- Camera Section -->
+					<div class="overflow-hidden rounded-3xl bg-white shadow-2xl">
+						<!-- Location Info Header -->
+						<div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
+							<div class="flex items-center gap-3">
+								<div class="rounded-xl bg-white/20 p-3 backdrop-blur-sm">
+									<MapPin class="h-6 w-6 text-white" />
+								</div>
+								<div class="text-white">
+									<h3 class="text-lg font-bold">{work.companies.sites[0].name}</h3>
+									<p class="text-sm opacity-90">{work.companies.sites[0].address}</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Camera Feed -->
+						<div class="relative">
+							<video
+								bind:this={videoElement}
+								autoplay
+								playsinline
+								class="w-full bg-black"
+								style="aspect-ratio: 4/3;"
+							>
+								<track kind="captions" />
+							</video>
+							<canvas bind:this={canvasElement} class="hidden"></canvas>
+
+							<!-- Camera Overlay -->
+							<div class="pointer-events-none absolute inset-0">
+								<!-- Corner Frames -->
+								<div
+									class="absolute top-8 left-8 h-16 w-16 border-t-4 border-l-4 border-white"
+								></div>
+								<div
+									class="absolute top-8 right-8 h-16 w-16 border-t-4 border-r-4 border-white"
+								></div>
+								<div
+									class="absolute bottom-8 left-8 h-16 w-16 border-b-4 border-l-4 border-white"
+								></div>
+								<div
+									class="absolute right-8 bottom-8 h-16 w-16 border-r-4 border-b-4 border-white"
+								></div>
+
+								<!-- Center Guide -->
+								<div class="absolute inset-0 flex items-center justify-center">
+									<div class="rounded-full border-2 border-white p-2">
+										<User class="h-8 w-8 text-white" />
+									</div>
+								</div>
+
+								<!-- Status Badge -->
+								<div class="absolute top-4 left-4">
+									<div
+										class="flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 backdrop-blur-sm"
+									>
+										<div class="h-2 w-2 animate-pulse rounded-full bg-red-500"></div>
+										<span class="text-sm font-semibold text-white">Live</span>
+									</div>
+								</div>
+
+								<!-- Clock Type Badge -->
+								<div class="absolute top-4 right-4">
+									<div
+										class={`flex items-center gap-2 rounded-full px-4 py-2 backdrop-blur-sm ${attendance ? 'bg-red-500/80' : 'bg-green-500/80'}`}
+									>
+										{#if attendance}
+											<LogOut class="h-4 w-4 text-white" />
+											<span class="text-sm font-bold text-white">Clock Out</span>
+										{:else}
+											<LogIn class="h-4 w-4 text-white" />
+											<span class="text-sm font-bold text-white">Clock In</span>
+										{/if}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Capture Button -->
+						<div class="p-8">
+							<button
+								onclick={capture}
+								class={`group relative w-full overflow-hidden rounded-2xl py-6 font-bold text-white shadow-2xl transition-all hover:scale-105 active:scale-95 ${
+									attendance
+										? 'bg-gradient-to-r from-red-500 to-pink-600'
+										: 'bg-gradient-to-r from-green-500 to-emerald-600'
+								}`}
+							>
+								<span class="relative z-10 flex items-center justify-center gap-3 text-xl">
+									<Camera class="h-6 w-6 transition-transform group-hover:rotate-12" />
+									{attendance ? 'Ambil Foto Clock Out' : 'Ambil Foto Clock In'}
+								</span>
+								<!-- Animated background -->
+								<div
+									class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full"
+								></div>
+							</button>
+
+							<!-- Info Box -->
+							<div class="mt-6 rounded-2xl bg-blue-50 p-4">
+								<div class="flex items-start gap-3">
+									<div class="rounded-lg bg-blue-500 p-2">
+										<Sparkles class="h-5 w-5 text-white" />
+									</div>
+									<div class="flex-1">
+										<h4 class="mb-1 font-semibold text-blue-900">Tips Absensi</h4>
+										<ul class="space-y-1 text-sm text-blue-800">
+											<li class="flex items-start gap-2">
+												<CheckCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
+												<span>Pastikan wajah Anda terlihat jelas</span>
+											</li>
+											<li class="flex items-start gap-2">
+												<CheckCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
+												<span>Aktifkan GPS untuk verifikasi lokasi</span>
+											</li>
+											<li class="flex items-start gap-2">
+												<CheckCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
+												<span>Pastikan pencahayaan cukup terang</span>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{:else}
+					<!-- No Location Error -->
+					<div class="rounded-3xl bg-white p-12 text-center shadow-2xl">
+						<div
+							class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-orange-100"
+						>
+							<AlertCircle class="h-10 w-10 text-orange-600" />
+						</div>
+						<h3 class="mb-2 text-xl font-bold text-gray-800">Belum Ada Lokasi Kerja</h3>
+						<p class="text-gray-600">Silakan hubungi admin untuk menambahkan lokasi kerja Anda.</p>
+					</div>
+				{/if}
+			</div>
+		{/if}
+
+		{#if isWorkIn === false}
+			<!-- Not Employed Error -->
+			<div class="mx-auto max-w-2xl">
+				<div class="rounded-3xl bg-white p-12 text-center shadow-2xl">
+					<div
+						class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-red-100"
+					>
+						<XCircle class="h-10 w-10 text-red-600" />
+					</div>
+					<h3 class="mb-2 text-xl font-bold text-gray-800">Tidak Terdaftar</h3>
+					<p class="mb-6 text-gray-600">
+						Anda tidak terdaftar di perusahaan manapun. Silakan hubungi admin untuk pendaftaran.
+					</p>
+					<button
+						onclick={() => goto('/dashboard')}
+						class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 font-bold text-white shadow-lg transition-all hover:scale-105 active:scale-95"
+					>
+						Kembali ke Dashboard
+					</button>
+				</div>
+			</div>
+		{/if}
+	{/if}
 </main>

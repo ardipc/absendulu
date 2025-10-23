@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
       .single();
 
   let { data: attendances } = await locals.supabase.from("attendances")
-    .select("*, sites(name)")
+    .select("*, sites(name, latitude, longitude, radius, address, companies(name))")
     .eq("email", get.data.email)
     .order('id', { ascending: false });
 

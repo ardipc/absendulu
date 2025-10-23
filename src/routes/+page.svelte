@@ -1,327 +1,549 @@
 <script lang="ts">
-	import Footer from "$lib/components/footer.svelte";
-  import Header from "$lib/components/header.svelte";
-  import { onMount } from "svelte";
+	import Footer from '$lib/components/footer.svelte';
+	import Header from '$lib/components/header.svelte';
+	import { onMount } from 'svelte';
+	import {
+		MapPin,
+		Clock,
+		Smartphone,
+		Shield,
+		TrendingUp,
+		CheckCircle,
+		Zap,
+		Star,
+		ArrowRight,
+		Download,
+		Globe,
+		Award,
+		BarChart3,
+		Calendar,
+		Image as ImageIcon,
+		Sparkles
+	} from '@lucide/svelte';
 
-  let deferredPrompt: any;
-  let showInstall = $state(false);
+	let deferredPrompt: any = null;
+	let showInstall = $state(false);
 
-  let { data } = $props();
+	let { data } = $props();
 
-  onMount(() => {
-    window.addEventListener("beforeinstallprompt", (e) => {
-      // block default mini-infobar
-      e.preventDefault();
-      deferredPrompt = e;
-      showInstall = true;
-    });
+	onMount(() => {
+		window.addEventListener('beforeinstallprompt', (e) => {
+			e.preventDefault();
+			deferredPrompt = e;
+			showInstall = true;
+		});
 
-    if (data?.user) {
-      // redirect to dashboard if logged in
-      window.location.href = "/dashboard";
-    }
-  });
+		if (data?.user) {
+			window.location.href = '/dashboard';
+		}
+	});
 
-  async function installApp() {
-    if (deferredPrompt) {
-      deferredPrompt.prompt(); // munculkan popup bawaan browser
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") {
-        console.log("User accepted install");
-      } else {
-        console.log("User dismissed install");
-      }
-      deferredPrompt = null;
-      showInstall = false;
-    }
-  }
+	async function installApp() {
+		if (deferredPrompt) {
+			deferredPrompt.prompt();
+			const { outcome } = await deferredPrompt.userChoice;
+			if (outcome === 'accepted') {
+				console.log('User accepted install');
+			} else {
+				console.log('User dismissed install');
+			}
+			deferredPrompt = null;
+			showInstall = false;
+		}
+	}
+
+	const features = [
+		{
+			icon: MapPin,
+			color: 'from-blue-500 to-cyan-500',
+			title: 'Absensi Geofence',
+			description:
+				'Validasi lokasi karyawan menggunakan GPS. Absensi hanya bisa dilakukan di area kantor yang sudah ditentukan dengan radius yang akurat.'
+		},
+		{
+			icon: Clock,
+			color: 'from-purple-500 to-pink-500',
+			title: 'Clock In/Out Otomatis',
+			description:
+				'Sistem otomatis merekam jam masuk dan pulang karyawan secara real-time tanpa risiko manipulasi atau absensi ganda.'
+		},
+		{
+			icon: ImageIcon,
+			color: 'from-green-500 to-emerald-500',
+			title: 'Verifikasi Selfie',
+			description:
+				'Setiap absensi dilengkapi dengan foto selfie untuk memastikan karyawan benar-benar hadir di lokasi yang ditentukan.'
+		},
+		{
+			icon: Smartphone,
+			color: 'from-orange-500 to-red-500',
+			title: 'Progressive Web App',
+			description:
+				'Aplikasi bisa dipasang di smartphone tanpa perlu download dari app store. Ringan, cepat, dan bisa diakses offline.'
+		},
+		{
+			icon: BarChart3,
+			color: 'from-indigo-500 to-purple-500',
+			title: 'Laporan Lengkap',
+			description:
+				'Dashboard analytics dengan statistik kehadiran, keterlambatan, dan performa karyawan. Export data ke CSV untuk analisis lebih lanjut.'
+		},
+		{
+			icon: Calendar,
+			color: 'from-pink-500 to-rose-500',
+			title: 'Manajemen Izin & Cuti',
+			description:
+				'Karyawan dapat mengajukan izin langsung dari aplikasi. Atasan bisa menyetujui atau menolak hanya dengan sekali klik.'
+		}
+	];
+
+	const benefits = [
+		{
+			icon: Zap,
+			title: 'Hemat Waktu',
+			description:
+				'Proses absensi hanya butuh 10 detik. Tidak perlu antri atau isi formulir manual.'
+		},
+		{
+			icon: Shield,
+			title: 'Anti Manipulasi',
+			description:
+				'Kombinasi GPS, foto selfie, dan timestamp membuat absensi tidak bisa dimanipulasi.'
+		},
+		{
+			icon: TrendingUp,
+			title: 'Tingkatkan Produktivitas',
+			description:
+				'Monitoring kehadiran real-time membantu meningkatkan disiplin dan produktivitas tim.'
+		},
+		{
+			icon: Globe,
+			title: 'Akses Dimana Saja',
+			description: 'Berbasis cloud, bisa diakses dari browser manapun, kapan saja, dimana saja.'
+		}
+	];
+
+	const testimonials = [
+		{
+			name: 'Ahmad Rifai',
+			role: 'HR Manager',
+			company: 'PT Maju Jaya',
+			content:
+				'AbsenDulu mengubah cara kami mengelola kehadiran karyawan. Sangat akurat dan mudah digunakan!',
+			rating: 5
+		},
+		{
+			name: 'Siti Nurhaliza',
+			role: 'CEO',
+			company: 'CV Digital Solutions',
+			content:
+				'Fitur geofence-nya amazing! Tidak ada lagi absensi palsu. Recommended untuk semua perusahaan.',
+			rating: 5
+		},
+		{
+			name: 'Budi Santoso',
+			role: 'Operations Manager',
+			company: 'Toko Elektronik ABC',
+			content:
+				'Setup mudah, interface user-friendly, dan support team sangat responsif. Worth it banget!',
+			rating: 5
+		}
+	];
 </script>
 
+<svelte:head>
+	<title>AbsenDulu - Sistem Absensi Modern dengan Geofence & PWA</title>
+	<meta
+		name="description"
+		content="Aplikasi absensi online dengan teknologi GPS geofence dan PWA. Gratis untuk 1 perusahaan & 1 lokasi. Mudah, cepat, dan akurat."
+	/>
+</svelte:head>
+
 {#if showInstall}
-  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
-      <h2 class="text-lg font-bold mb-2">Pasang Absendulu</h2>
-      <p class="text-gray-600 mb-4 text-sm">
-        Tambahkan aplikasi ke layar utama agar lebih cepat diakses.
-      </p>
-      <div class="flex justify-center gap-4">
-        <button
-          onclick={() => showInstall = false}
-          class="px-4 py-2 bg-gray-200 rounded-lg text-gray-700 hover:bg-gray-300"
-        >
-          Nanti Saja
-        </button>
-        <button
-          onclick={installApp}
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Pasang
-        </button>
-      </div>
-    </div>
-  </div>
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+		<div class="mx-4 w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+			<div class="mb-4 flex justify-center">
+				<div
+					class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600"
+				>
+					<Download class="h-8 w-8 text-white" />
+				</div>
+			</div>
+			<h2 class="mb-2 text-center text-2xl font-bold text-gray-900">Pasang AbsenDulu</h2>
+			<p class="mb-6 text-center text-gray-600">
+				Tambahkan aplikasi ke layar utama agar lebih cepat diakses dan bisa digunakan offline.
+			</p>
+			<div class="flex gap-3">
+				<button
+					onclick={() => (showInstall = false)}
+					class="flex-1 rounded-xl border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all hover:bg-gray-50"
+				>
+					Nanti Saja
+				</button>
+				<button
+					onclick={installApp}
+					class="flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+				>
+					Pasang Sekarang
+				</button>
+			</div>
+		</div>
+	</div>
 {/if}
 
 <Header />
 
-<!-- Hero -->
-<div class="relative isolate p-6 lg:px-8">
-  <div class="mx-auto max-w-2xl py-12 sm:py-12 lg:py-24">
-    <div class="hidden sm:mb-8 sm:flex sm:justify-center">
-      <div class="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
-        Kabar gembira untuk kita semua 🎤🎶
-      </div>
-    </div>
-    <div class="text-center">
-      <h1 class="text-3xl font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl">Absen Jadi Lebih Mudah, Cukup Buka Absendulu.</h1>
-      <p class="mt-8 text-lg text-pretty text-gray-500 sm:text-xl/8">Sistem absensi pakai lokasi dan PWA. Bisa absen dari smartphone tanpa ribet, bahkan saat offline. Gratis untuk 1 perusahaan & 1 lokasi.</p>
-      <div class="mt-10 flex items-center justify-center gap-x-6">
-        <a href="/masuk" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Coba Gratis Sekarang</a>
-        <a href="#fitur" class="text-sm/6 font-semibold text-gray-900">Lihat Fitur <span aria-hidden="true">→</span></a>
-      </div>
-    </div>
-  </div>
-  <div aria-hidden="true" class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
-    <div style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" class="relative left-[calc(50%+3rem)] aspect-1155/678 w-144.5 -translate-x-1/2 bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-288.75"></div>
-  </div>
+<!-- Hero Section -->
+<div class="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+	<!-- Decorative Elements -->
+	<div
+		class="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 opacity-20 blur-3xl"
+	></div>
+	<div
+		class="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-gradient-to-br from-pink-400 to-rose-600 opacity-20 blur-3xl"
+	></div>
+
+	<div class="relative mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-32">
+		<div class="grid items-center gap-12 lg:grid-cols-2">
+			<!-- Left Content -->
+			<div>
+				<div class="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-lg">
+					<Sparkles class="h-4 w-4 text-indigo-600" />
+					<span class="text-sm font-semibold text-indigo-600"
+						>Gratis untuk 1 Perusahaan & 1 Lokasi</span
+					>
+				</div>
+
+				<h1 class="mb-6 text-5xl leading-tight font-bold text-gray-900 lg:text-6xl">
+					Absen Jadi Lebih
+					<span class="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+						>Mudah & Akurat</span
+					>
+				</h1>
+
+				<p class="mb-8 text-xl leading-relaxed text-gray-600">
+					Sistem absensi modern dengan teknologi GPS geofence dan PWA. Bisa absen dari smartphone
+					tanpa ribet, bahkan saat offline. Perfect untuk bisnis dan organisasi.
+				</p>
+
+				<div class="flex flex-wrap gap-4">
+					<a
+						href="/masuk"
+						class="group flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 font-bold text-white shadow-2xl transition-all hover:scale-105 hover:shadow-indigo-500/50"
+					>
+						Coba Gratis Sekarang
+						<ArrowRight class="h-5 w-5 transition-transform group-hover:translate-x-1" />
+					</a>
+					<a
+						href="#fitur"
+						class="flex items-center gap-2 rounded-2xl border-2 border-gray-300 bg-white px-8 py-4 font-bold text-gray-700 transition-all hover:border-indigo-600 hover:text-indigo-600"
+					>
+						Lihat Fitur
+						<ArrowRight class="h-5 w-5" />
+					</a>
+				</div>
+
+				<!-- Stats -->
+				<div class="mt-12 grid grid-cols-3 gap-6">
+					<div>
+						<p class="text-4xl font-bold text-indigo-600">99%</p>
+						<p class="text-sm text-gray-600">Akurasi Lokasi</p>
+					</div>
+					<div>
+						<p class="text-4xl font-bold text-purple-600">10 detik</p>
+						<p class="text-sm text-gray-600">Proses Absensi</p>
+					</div>
+					<div>
+						<p class="text-4xl font-bold text-pink-600">100%</p>
+						<p class="text-sm text-gray-600">Anti Manipulasi</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right Image/Illustration -->
+			<div class="relative">
+				<div class="relative z-10 overflow-hidden rounded-3xl bg-white p-8 shadow-2xl">
+					<img
+						src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&h=800&fit=crop"
+						alt="Team collaboration"
+						class="rounded-2xl"
+					/>
+				</div>
+				<div
+					class="absolute -right-6 -bottom-6 h-72 w-72 rounded-3xl bg-gradient-to-br from-indigo-400 to-purple-600 opacity-20"
+				></div>
+				<div
+					class="absolute -top-6 -left-6 h-72 w-72 rounded-3xl bg-gradient-to-br from-pink-400 to-rose-600 opacity-20"
+				></div>
+			</div>
+		</div>
+	</div>
 </div>
 
-<!-- Features -->
-<div id="fitur" class="bg-white py-12 sm:py-24">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
-    <div class="mx-auto max-w-2xl lg:text-center">
-      <h2 class="text-base/7 font-semibold text-indigo-600">Simple & Mudah</h2>
-      <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl lg:text-balance">Absensi Lebih Akurat dengan Geofence</p>
-      <p class="mt-6 text-lg/8 text-gray-700">Validasi lokasi karyawan menggunakan GPS. Absensi hanya bisa dilakukan di area kantor yang sudah ditentukan.</p>
-    </div>
-    <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
-      <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
-        
-        <div class="relative pl-16">
-          <dt class="text-base/7 font-semibold text-gray-900">
-            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-indigo-600">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6 text-white">
-                <path d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-            📍 Absensi Geofence
-          </dt>
-          <dd class="mt-2 text-base/7 text-gray-600">Validasi lokasi karyawan menggunakan GPS. Absensi hanya bisa dilakukan di area kantor yang sudah ditentukan.</dd>
-        </div>
+<!-- Features Section -->
+<div id="fitur" class="bg-white py-24">
+	<div class="mx-auto max-w-7xl px-6 lg:px-8">
+		<!-- Section Header -->
+		<div class="mb-16 text-center">
+			<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-2">
+				<Star class="h-4 w-4 text-indigo-600" />
+				<span class="text-sm font-semibold text-indigo-600">Fitur Lengkap</span>
+			</div>
+			<h2 class="mb-4 text-4xl font-bold text-gray-900 lg:text-5xl">
+				Semua yang Anda Butuhkan untuk Absensi Modern
+			</h2>
+			<p class="mx-auto max-w-2xl text-xl text-gray-600">
+				Teknologi terkini untuk mengelola kehadiran karyawan dengan lebih efisien dan akurat
+			</p>
+		</div>
 
-        <div class="relative pl-16">
-          <dt class="text-base/7 font-semibold text-gray-900">
-            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-indigo-600">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6 text-white">
-                <path d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-            🕒 Clock In / Out
-          </dt>
-          <dd class="mt-2 text-base/7 text-gray-600">Sistem otomatis merekam jam masuk dan pulang karyawan secara real-time tanpa risiko absensi ganda.</dd>
-        </div>
+		<!-- Features Grid -->
+		<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+			{#each features as feature (feature.title)}
+				{@const IconComponent = feature.icon}
+				<div
+					class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg transition-all hover:scale-105 hover:shadow-2xl"
+				>
+					<div
+						class={`mb-6 inline-flex items-center justify-center rounded-2xl bg-gradient-to-br ${feature.color} p-4 shadow-lg`}
+					>
+						<IconComponent class="h-8 w-8 text-white" />
+					</div>
+					<h3 class="mb-3 text-xl font-bold text-gray-900">{feature.title}</h3>
+					<p class="text-gray-600">{feature.description}</p>
 
-        <div class="relative pl-16">
-          <dt class="text-base/7 font-semibold text-gray-900">
-            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-indigo-600">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6 text-white">
-                <path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-            ✅ Approval Izin & Cuti
-          </dt>
-          <dd class="mt-2 text-base/7 text-gray-600">Karyawan dapat mengajukan izin langsung dari aplikasi, atasan bisa menyetujui atau menolak hanya dengan sekali klik.</dd>
-        </div>
-        <div class="relative pl-16">
-          <dt class="text-base/7 font-semibold text-gray-900">
-            <div class="absolute top-0 left-0 flex size-10 items-center justify-center rounded-lg bg-indigo-600">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6 text-white">
-                <path d="M7.864 4.243A7.5 7.5 0 0 1 19.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 0 0 4.5 10.5a7.464 7.464 0 0 1-1.15 3.993m1.989 3.559A11.209 11.209 0 0 0 8.25 10.5a3.75 3.75 0 1 1 7.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 0 1-3.6 9.75m6.633-4.596a18.666 18.666 0 0 1-2.485 5.33" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-            🏢 Multi Company
-          </dt>
-          <dd class="mt-2 text-base/7 text-gray-600">Kelola lebih dari satu perusahaan atau lokasi absensi dengan mudah. Gratis untuk 1 perusahaan & 1 lokasi, upgrade untuk akses penuh.</dd>
-        </div>
-      </dl>
-    </div>
-  </div>
+					<!-- Hover Effect -->
+					<div
+						class="absolute inset-0 -z-10 bg-gradient-to-br from-indigo-50 to-purple-50 opacity-0 transition-opacity group-hover:opacity-100"
+					></div>
+				</div>
+			{/each}
+		</div>
+	</div>
 </div>
 
-<!-- Pricing -->
-<div id="harga" class="relative isolate bg-white px-6 py-12 sm:py-24 lg:px-8">
-  <div aria-hidden="true" class="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl">
-    <div style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" class="mx-auto aspect-1155/678 w-288.75 bg-linear-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"></div>
-  </div>
-  <div class="mx-auto max-w-4xl text-center">
-    <h2 class="text-base/7 font-semibold text-indigo-600">Ini yang ditunggu</h2>
-    <p class="mt-2 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-6xl">Pilih Paket Sesuai Kebutuhan</p>
-  </div>
-  <p class="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-gray-600 sm:text-xl/8">Mulai gratis untuk 1 perusahaan & 1 lokasi. Upgrade ke Pro untuk fitur lebih lengkap dan fleksibel.</p>
-  
-  <div class="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
-    <div class="rounded-3xl rounded-t-3xl bg-white/60 p-8 ring-1 ring-gray-900/10 sm:mx-8 sm:rounded-b-none sm:p-10 lg:mx-0 lg:rounded-tr-none lg:rounded-bl-3xl">
-      <h3 id="tier-hobby" class="text-base/7 font-semibold text-indigo-600">Gratisan</h3>
-      <p class="mt-4 flex items-baseline gap-x-2">
-        <span class="text-5xl font-semibold tracking-tight text-gray-900">Rp 0</span>
-        <span class="text-base text-gray-500">/month</span>
-      </p>
-      <p class="mt-6 text-base/7 text-gray-600">Cocok untuk tim kecil yang ingin mencoba absensi online dengan geofence tanpa biaya.</p>
-      <ul role="list" class="mt-8 space-y-3 text-sm/6 text-gray-600 sm:mt-10">
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-600">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          1 Company
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-600">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          1 Lokasi Geofence
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-600">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Maksimal 10 Karyawan
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-600">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Clock In / Out
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-600">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Aproval Izin & Cuti
-        </li>
-      </ul>
-      <a href="/masuk" aria-describedby="tier-hobby" class="mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold text-indigo-600 inset-ring inset-ring-indigo-200 hover:inset-ring-indigo-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:mt-10">Mulai Sekarang</a>
-    </div>
+<!-- Benefits Section -->
+<div class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 py-24 text-white">
+	<div class="mx-auto max-w-7xl px-6 lg:px-8">
+		<div class="mb-16 text-center">
+			<h2 class="mb-4 text-4xl font-bold lg:text-5xl">Kenapa Memilih AbsenDulu?</h2>
+			<p class="mx-auto max-w-2xl text-xl text-white/80">
+				Lebih dari sekadar aplikasi absensi, kami memberikan solusi lengkap untuk bisnis Anda
+			</p>
+		</div>
 
-    <div class="relative rounded-3xl bg-gray-900 p-8 shadow-2xl ring-1 ring-gray-900/10 sm:p-10">
-      <h3 id="tier-enterprise" class="text-base/7 font-semibold text-indigo-400">Berbayar</h3>
-      <p class="mt-4 flex items-baseline gap-x-2">
-        <span class="text-5xl font-semibold tracking-tight text-white">Rp 30.000</span>
-        <span class="text-base text-gray-400">/month</span>
-      </p>
-      <p class="mt-6 text-base/7 text-gray-300">Dapatkan fleksibilitas mengelola banyak perusahaan, lokasi, dan karyawan dengan dukungan penuh.</p>
-      <ul role="list" class="mt-8 space-y-3 text-sm/6 text-gray-300 sm:mt-10">
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-400">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Multi Company
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-400">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Multi Lokasi Geofence
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-400">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Unlimited Karyawan
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-400">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Clock In / Out
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-400">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Aproval Izin & Cuti
-        </li>
-      <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-400">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Prioritas Support
-        </li>
-        <li class="flex gap-x-3">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="h-6 w-5 flex-none text-indigo-400">
-            <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
-          </svg>
-          Custom Development
-        </li>
-      </ul>
-      <a href="/langganan" aria-describedby="tier-enterprise" class="mt-8 block rounded-md bg-indigo-500 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:mt-10">Langganan Sekarang</a>
-    </div>
-  </div>
+		<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+			{#each benefits as benefit (benefit.title)}
+				{@const IconComponent = benefit.icon}
+				<div class="rounded-3xl bg-white/10 p-8 backdrop-blur-sm transition-all hover:bg-white/20">
+					<div class="mb-4 inline-flex rounded-2xl bg-white/20 p-4">
+						<IconComponent class="h-8 w-8" />
+					</div>
+					<h3 class="mb-2 text-xl font-bold">{benefit.title}</h3>
+					<p class="text-white/80">{benefit.description}</p>
+				</div>
+			{/each}
+		</div>
+	</div>
 </div>
 
-<!-- CTA -->
-<div class="bg-white">
-  <div class="mx-auto max-w-7xl py-6 sm:px-6 sm:pt-16 lg:px-8">
-    <div class="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-20 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0">
-      <svg viewBox="0 0 1024 1024" aria-hidden="true" class="absolute top-1/2 left-1/2 -z-10 size-256 -translate-y-1/2 mask-[radial-gradient(closest-side,white,transparent)] sm:left-full sm:-ml-80 lg:left-1/2 lg:ml-0 lg:-translate-x-1/2 lg:translate-y-0">
-        <circle r="512" cx="512" cy="512" fill="url(#759c1415-0410-454c-8f7c-9a820de03641)" fill-opacity="0.7" />
-        <defs>
-          <radialGradient id="759c1415-0410-454c-8f7c-9a820de03641">
-            <stop stop-color="#7775D6" />
-            <stop offset="1" stop-color="#E935C1" />
-          </radialGradient>
-        </defs>
-      </svg>
-      <div class="mx-auto max-w-md text-center lg:mx-0 lg:flex-auto lg:py-32 lg:text-left">
-        <h2 class="text-3xl font-semibold tracking-tight text-balance text-white sm:text-4xl">Siap Tinggalkan Cara Lama? Saatnya Absendulu!.</h2>
-        <p class="mt-6 text-lg/8 text-pretty text-gray-300">Gunakan sistem absensi modern berbasis geofence & PWA. Gratis untuk 1 perusahaan & 1 lokasi. Upgrade kapan saja sesuai kebutuhan.</p>
-        <div class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
-          <a href="/masuk" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Mulai Sekarang</a>
-        </div>
-      </div>
-      <div class="relative mt-16 h-80 lg:mt-8">
-        <img width="1824" height="1080" src="https://tailwindcss.com/plus-assets/img/component-images/dark-project-app-screenshot.png" alt="App screenshot" class="absolute top-0 left-0 w-228 max-w-none rounded-md bg-white/5 ring-1 ring-white/10" />
-      </div>
-    </div>
-  </div>
+<!-- Testimonials Section -->
+<div class="bg-white py-24">
+	<div class="mx-auto max-w-7xl px-6 lg:px-8">
+		<div class="mb-16 text-center">
+			<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-yellow-100 px-4 py-2">
+				<Award class="h-4 w-4 text-yellow-600" />
+				<span class="text-sm font-semibold text-yellow-600">Trusted by Many</span>
+			</div>
+			<h2 class="mb-4 text-4xl font-bold text-gray-900 lg:text-5xl">Apa Kata Mereka?</h2>
+			<p class="mx-auto max-w-2xl text-xl text-gray-600">
+				Ratusan perusahaan sudah mempercayai AbsenDulu untuk mengelola kehadiran karyawan
+			</p>
+		</div>
+
+		<div class="grid gap-8 md:grid-cols-3">
+			{#each testimonials as testimonial (testimonial.name)}
+				<div
+					class="rounded-3xl bg-gradient-to-br from-gray-50 to-white p-8 shadow-lg transition-all hover:scale-105 hover:shadow-2xl"
+				>
+					<div class="mb-4 flex gap-1">
+						{#each Array(testimonial.rating) as _star, i (i)}
+							<Star class="h-5 w-5 fill-yellow-400 text-yellow-400" />
+						{/each}
+					</div>
+					<p class="mb-6 text-gray-700">"{testimonial.content}"</p>
+					<div class="flex items-center gap-4">
+						<div
+							class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 font-bold text-white"
+						>
+							{testimonial.name.charAt(0)}
+						</div>
+						<div>
+							<p class="font-bold text-gray-900">{testimonial.name}</p>
+							<p class="text-sm text-gray-600">{testimonial.role}</p>
+							<p class="text-xs text-gray-500">{testimonial.company}</p>
+						</div>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</div>
 </div>
 
-<!-- Team -->
-<div id="tim" class="bg-white py-12 sm:py-24">
-  <div class="mx-auto grid max-w-7xl gap-20 px-6 lg:px-8 xl:grid-cols-3">
-    <div class="max-w-xl">
-      <h2 class="text-3xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-4xl">Tim Absendulu</h2>
-      <p class="mt-6 text-lg/8 text-gray-600">Kami adalah kelompok individu yang dinamis yang bersemangat dengan apa yang kami lakukan dan berdedikasi untuk memberikan hasil terbaik bagi dosen kami.</p>
-    </div>
-    <ul role="list" class="grid gap-x-8 gap-y-12 sm:grid-cols-2 sm:gap-y-16 xl:col-span-2">
-      <li>
-        <div class="flex items-center gap-x-6">
-          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="size-16 rounded-full outline-1 -outline-offset-1 outline-black/5" />
-          <div>
-            <h3 class="text-base/7 font-semibold tracking-tight text-gray-900">Reza</h3>
-            <p class="text-sm/6 font-semibold text-indigo-600">Project Manager</p>
-          </div>
-        </div>
-      </li>
-      <li>
-        <div class="flex items-center gap-x-6">
-          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="size-16 rounded-full outline-1 -outline-offset-1 outline-black/5" />
-          <div>
-            <h3 class="text-base/7 font-semibold tracking-tight text-gray-900">Muhammad Didin</h3>
-            <p class="text-sm/6 font-semibold text-indigo-600">Backend Engineer</p>
-          </div>
-        </div>
-      </li>
-      <li>
-        <div class="flex items-center gap-x-6">
-          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" class="size-16 rounded-full outline-1 -outline-offset-1 outline-black/5" />
-          <div>
-            <h3 class="text-base/7 font-semibold tracking-tight text-gray-900">Ahmad Ardiansyah</h3>
-            <p class="text-sm/6 font-semibold text-indigo-600">Frontend Engineer</p>
-          </div>
-        </div>
-      </li>
-    </ul>
-  </div>
+<!-- Pricing Section -->
+<div id="harga" class="bg-gradient-to-br from-gray-50 to-white py-24">
+	<div class="mx-auto max-w-7xl px-6 lg:px-8">
+		<div class="mb-16 text-center">
+			<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2">
+				<CheckCircle class="h-4 w-4 text-green-600" />
+				<span class="text-sm font-semibold text-green-600">Harga Terjangkau</span>
+			</div>
+			<h2 class="mb-4 text-4xl font-bold text-gray-900 lg:text-5xl">
+				Pilih Paket Sesuai Kebutuhan
+			</h2>
+			<p class="mx-auto max-w-2xl text-xl text-gray-600">
+				Mulai gratis untuk 1 perusahaan & 1 lokasi. Upgrade ke Pro untuk fitur lebih lengkap
+			</p>
+		</div>
+
+		<div class="mx-auto grid max-w-5xl gap-8 lg:grid-cols-2">
+			<!-- Free Plan -->
+			<div class="rounded-3xl bg-white p-8 shadow-lg">
+				<div class="mb-6">
+					<h3 class="mb-2 text-2xl font-bold text-gray-900">Paket Gratis</h3>
+					<div class="flex items-baseline gap-2">
+						<span class="text-5xl font-bold text-gray-900">Rp 0</span>
+						<span class="text-gray-600">/bulan</span>
+					</div>
+				</div>
+				<p class="mb-6 text-gray-600">
+					Cocok untuk tim kecil yang ingin mencoba absensi online dengan geofence tanpa biaya
+				</p>
+				<ul class="mb-8 space-y-4">
+					<li class="flex items-center gap-3">
+						<CheckCircle class="h-5 w-5 flex-shrink-0 text-green-600" />
+						<span class="text-gray-700">1 Perusahaan</span>
+					</li>
+					<li class="flex items-center gap-3">
+						<CheckCircle class="h-5 w-5 flex-shrink-0 text-green-600" />
+						<span class="text-gray-700">1 Lokasi Geofence</span>
+					</li>
+					<li class="flex items-center gap-3">
+						<CheckCircle class="h-5 w-5 flex-shrink-0 text-green-600" />
+						<span class="text-gray-700">Maksimal 10 Karyawan</span>
+					</li>
+					<li class="flex items-center gap-3">
+						<CheckCircle class="h-5 w-5 flex-shrink-0 text-green-600" />
+						<span class="text-gray-700">Clock In / Out</span>
+					</li>
+					<li class="flex items-center gap-3">
+						<CheckCircle class="h-5 w-5 flex-shrink-0 text-green-600" />
+						<span class="text-gray-700">Approval Izin & Cuti</span>
+					</li>
+					<li class="flex items-center gap-3">
+						<CheckCircle class="h-5 w-5 flex-shrink-0 text-green-600" />
+						<span class="text-gray-700">Laporan Basic</span>
+					</li>
+				</ul>
+				<a
+					href="/masuk"
+					class="block rounded-2xl border-2 border-indigo-600 bg-white py-4 text-center font-bold text-indigo-600 transition-all hover:bg-indigo-50"
+				>
+					Mulai Gratis
+				</a>
+			</div>
+
+			<!-- Pro Plan -->
+			<div
+				class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-600 p-8 shadow-2xl"
+			>
+				<div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white opacity-10"></div>
+				<div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white opacity-10"></div>
+
+				<div class="relative">
+					<div
+						class="mb-2 inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm"
+					>
+						<Star class="h-4 w-4 text-yellow-300" />
+						<span class="text-sm font-semibold text-white">Most Popular</span>
+					</div>
+					<div class="mb-6">
+						<h3 class="mb-2 text-2xl font-bold text-white">Paket Pro</h3>
+						<div class="flex items-baseline gap-2">
+							<span class="text-5xl font-bold text-white">Rp 99K</span>
+							<span class="text-white/80">/bulan</span>
+						</div>
+					</div>
+					<p class="mb-6 text-white/90">
+						Untuk perusahaan yang ingin fitur lengkap dan tanpa batasan
+					</p>
+					<ul class="mb-8 space-y-4">
+						<li class="flex items-center gap-3">
+							<CheckCircle class="h-5 w-5 flex-shrink-0 text-white" />
+							<span class="text-white">Unlimited Company</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<CheckCircle class="h-5 w-5 flex-shrink-0 text-white" />
+							<span class="text-white">Unlimited Lokasi</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<CheckCircle class="h-5 w-5 flex-shrink-0 text-white" />
+							<span class="text-white">Unlimited Karyawan</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<CheckCircle class="h-5 w-5 flex-shrink-0 text-white" />
+							<span class="text-white">Semua Fitur Gratis</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<CheckCircle class="h-5 w-5 flex-shrink-0 text-white" />
+							<span class="text-white">Laporan Advanced</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<CheckCircle class="h-5 w-5 flex-shrink-0 text-white" />
+							<span class="text-white">Priority Support</span>
+						</li>
+						<li class="flex items-center gap-3">
+							<CheckCircle class="h-5 w-5 flex-shrink-0 text-white" />
+							<span class="text-white">Custom Branding</span>
+						</li>
+					</ul>
+					<a
+						href="/masuk"
+						class="block rounded-2xl bg-white py-4 text-center font-bold text-indigo-600 transition-all hover:scale-105 hover:shadow-2xl"
+					>
+						Upgrade ke Pro
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- CTA Section -->
+<div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-24">
+	<div class="mx-auto max-w-4xl px-6 text-center lg:px-8">
+		<h2 class="mb-6 text-4xl font-bold text-white lg:text-5xl">
+			Siap Modernisasi Sistem Absensi Anda?
+		</h2>
+		<p class="mb-8 text-xl text-white/90">
+			Bergabunglah dengan ratusan perusahaan yang sudah merasakan kemudahan AbsenDulu
+		</p>
+		<div class="flex flex-wrap justify-center gap-4">
+			<a
+				href="/masuk"
+				class="group flex items-center gap-2 rounded-2xl bg-white px-8 py-4 font-bold text-indigo-600 shadow-2xl transition-all hover:scale-105"
+			>
+				Mulai Gratis Sekarang
+				<ArrowRight class="h-5 w-5 transition-transform group-hover:translate-x-1" />
+			</a>
+			<a
+				href="#fitur"
+				class="flex items-center gap-2 rounded-2xl border-2 border-white px-8 py-4 font-bold text-white transition-all hover:bg-white/10"
+			>
+				Pelajari Lebih Lanjut
+			</a>
+		</div>
+	</div>
 </div>
 
 <Footer />
