@@ -193,14 +193,13 @@
 						Nomor Telepon
 					</label>
 					<input
-						type="tel"
+						type="text"
 						bind:value={phone}
 						placeholder="081234567890"
 						required
-						pattern="[0-9]{(10, 13)}"
 						class="w-full rounded-xl border-2 border-gray-200 p-4 transition-all focus:border-green-500 focus:ring-4 focus:ring-green-100 focus:outline-none"
 					/>
-					<p class="mt-2 text-xs text-gray-500">Format: 081234567890 (10-13 digit)</p>
+					<p class="mt-2 text-xs text-gray-500">Format: 081234567890</p>
 				</div>
 			</div>
 
