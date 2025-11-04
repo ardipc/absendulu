@@ -455,7 +455,7 @@
 										class="overflow-hidden rounded-2xl border-2 border-gray-200 bg-white transition-all hover:scale-[1.02] hover:border-indigo-300 hover:shadow-xl"
 									>
 										<div
-											class="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between"
+											class="flex flex-col gap-4 px-6 pt-6 md:flex-row md:items-center md:justify-between"
 										>
 											<div class="flex-1">
 												<div class="mb-2 flex items-center gap-2">
@@ -486,15 +486,36 @@
 													</p>
 												</div>
 											</div>
+										</div>
 
+										<div class="flex justify-between gap-3 px-6 pb-6">
 											<div class="mt-3 h-64 w-full overflow-hidden rounded-xl">
-												<iframe
-													class="h-full w-full border-0"
-													loading="lazy"
-													allowfullscreen
-													referrerpolicy="no-referrer-when-downgrade"
-													src={`https://maps.google.com/maps?q=${rec.sites?.latitude},${rec.sites?.longitude}&z=15&output=embed`}
-												></iframe>
+												<h3 class="mb-2">Clock In</h3>
+												{#if rec.clock_in_lat && rec.clock_in_lng}
+													<iframe
+														class="h-full w-full border-0"
+														loading="lazy"
+														allowfullscreen
+														referrerpolicy="no-referrer-when-downgrade"
+														src={`https://maps.google.com/maps?q=${rec.clock_in_lat},${rec.clock_in_lng}&z=15&output=embed`}
+													></iframe>
+												{:else}
+													<p>Belum Absen</p>
+												{/if}
+											</div>
+											<div class="mt-3 h-64 w-full overflow-hidden rounded-xl">
+												<h3 class="mb-2">Clock Out</h3>
+												{#if rec.clock_out_lat && rec.clock_out_lng}
+													<iframe
+														class="h-full w-full border-0"
+														loading="lazy"
+														allowfullscreen
+														referrerpolicy="no-referrer-when-downgrade"
+														src={`https://maps.google.com/maps?q=${rec.clock_out_lat},${rec.clock_out_lng}&z=15&output=embed`}
+													></iframe>
+												{:else}
+													<p>Belum Absen</p>
+												{/if}
 											</div>
 										</div>
 									</div>
