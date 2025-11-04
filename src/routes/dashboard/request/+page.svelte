@@ -70,6 +70,11 @@
 			return;
 		}
 
+		if (!file) {
+			alert('Lampiran wajib dilampirkan! Silakan upload file terlebih dahulu.');
+			return;
+		}
+
 		isSubmit = true;
 
 		let upload = await uploadFormData(data.supabase, file);
@@ -197,7 +202,6 @@
 </svelte:head>
 
 <main class="min-h-screen bg-gradient-to-br p-4 md:p-8">
-
 	{#if isWorkIn === false}
 		<!-- Not Employed Error -->
 		<div class="mx-auto max-w-2xl">
@@ -222,7 +226,6 @@
 	{/if}
 
 	{#if isWorkIn === true}
-
 		{#if loading === true}
 			<!-- Enhanced Loading State -->
 			<div class="mx-auto max-w-4xl space-y-6">
@@ -234,7 +237,6 @@
 				</div>
 			</div>
 		{/if}
-
 
 		{#if loading === false}
 			<div class="mx-auto max-w-5xl">
@@ -251,7 +253,9 @@
 
 				<!-- Tabs Container -->
 				<Tabs.Root value="account" class="w-full">
-					<Tabs.List class="mb-8 grid h-18 w-full grid-cols-2 gap-4 rounded-2xl bg-white p-2 shadow-lg">
+					<Tabs.List
+						class="mb-8 grid h-18 w-full grid-cols-2 gap-4 rounded-2xl bg-white p-2 shadow-lg"
+					>
 						<Tabs.Trigger
 							value="account"
 							class="rounded-xl px-6 py-4 font-semibold transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white data-[state=active]:shadow-lg"
@@ -328,7 +332,9 @@
 											<div
 												class={`rounded-lg p-2 ${type === 'sakit' ? 'bg-red-500' : 'bg-red-100 group-hover:bg-red-200'}`}
 											>
-												<Heart class={`h-5 w-5 ${type === 'sakit' ? 'text-white' : 'text-red-600'}`} />
+												<Heart
+													class={`h-5 w-5 ${type === 'sakit' ? 'text-white' : 'text-red-600'}`}
+												/>
 											</div>
 											<span
 												class={`font-semibold ${type === 'sakit' ? 'text-red-700' : 'text-gray-700'}`}
@@ -487,12 +493,16 @@
 					<Tabs.Content value="request">
 						<div class="overflow-hidden rounded-3xl bg-white shadow-2xl">
 							<!-- Requests Header -->
-							<div class="border-b border-gray-200 bg-gradient-to-r from-purple-500 to-pink-600 p-6">
+							<div
+								class="border-b border-gray-200 bg-gradient-to-r from-purple-500 to-pink-600 p-6"
+							>
 								<h2 class="flex items-center gap-2 text-xl font-semibold text-white">
 									<FileText class="h-6 w-6" />
 									Riwayat Request Anda
 								</h2>
-								<p class="mt-1 text-sm text-white/90">Total {myReqs.length} request yang diajukan</p>
+								<p class="mt-1 text-sm text-white/90">
+									Total {myReqs.length} request yang diajukan
+								</p>
 							</div>
 
 							<div class="p-6">
@@ -579,6 +589,5 @@
 				</Tabs.Root>
 			</div>
 		{/if}
-
 	{/if}
 </main>

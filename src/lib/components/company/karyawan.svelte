@@ -25,6 +25,37 @@
 		e.preventDefault();
 		isSubmitting = true;
 
+		// Check if email already exists
+		const { data: existingEmail, error: emailError } = await data.supabase
+			.from('employees')
+			.select('email')
+			.eq('email', email)
+			.eq('company', data.company.id)
+			.single();
+
+		if (existingEmail) {
+			alert('Email sudah digunakan oleh karyawan lain. Silakan gunakan email yang berbeda.');
+			isSubmitting = false;
+			return;
+		}
+
+		// Check if phone already exists
+		const { data: existingPhone, error: phoneError } = await data.supabase
+			.from('employees')
+			.select('phone')
+			.eq('phone', phone)
+			.eq('company', data.company.id)
+			.single();
+
+		if (existingPhone) {
+			alert(
+				'Nomor telepon sudah digunakan oleh karyawan lain. Silakan gunakan nomor yang berbeda.'
+			);
+			isSubmitting = false;
+			return;
+		}
+
+		// If both are unique, proceed with insertion
 		const newEmployee = { company: data.company.id, name: nama, email, role, phone };
 
 		const { error } = await data.supabase.from('employees').insert([newEmployee]);
