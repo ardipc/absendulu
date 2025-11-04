@@ -320,6 +320,16 @@
 											>{attendance.clock_in_lng?.toFixed(6) || '-'}</span
 										>
 									</div>
+
+									<div class="mt-3 h-64 w-full overflow-hidden rounded-xl">
+										<iframe
+											class="h-full w-full border-0"
+											loading="lazy"
+											allowfullscreen
+											referrerpolicy="no-referrer-when-downgrade"
+											src={`https://maps.google.com/maps?q=${attendance.clock_in_lat},${attendance.clock_in_lng}&z=15&output=embed`}
+										></iframe>
+									</div>
 								</div>
 							</div>
 
@@ -404,6 +414,16 @@
 										<span class="font-mono font-semibold text-gray-800"
 											>{attendance.clock_out_lng?.toFixed(6) || '-'}</span
 										>
+									</div>
+
+									<div class="mt-3 h-64 w-full overflow-hidden rounded-xl">
+										<iframe
+											class="h-full w-full border-0"
+											loading="lazy"
+											allowfullscreen
+											referrerpolicy="no-referrer-when-downgrade"
+											src={`https://maps.google.com/maps?q=${attendance.clock_out_lat},${attendance.clock_out_lng}&z=15&output=embed`}
+										></iframe>
 									</div>
 								</div>
 							</div>

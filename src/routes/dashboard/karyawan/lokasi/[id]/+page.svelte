@@ -217,6 +217,16 @@
 								Koordinat saat ini: {siteLat}, {siteLng}
 							</p>
 						</div>
+
+						<div class="mt-3 h-64 w-full overflow-hidden rounded-xl">
+							<iframe
+								class="h-full w-full border-0"
+								loading="lazy"
+								allowfullscreen
+								referrerpolicy="no-referrer-when-downgrade"
+								src={`https://maps.google.com/maps?q=${siteLat},${siteLng}&z=15&output=embed`}
+							></iframe>
+						</div>
 					</div>
 
 					<!-- Radius -->
